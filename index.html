@@ -1,587 +1,841 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, Settings } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ticket Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-const TicketDemo = () => {
-  const [view, setView] = useState('ticket');
-  const [zoneNumber, setZoneNumber] = useState(2);
-  const [zoneName, setZoneName] = useState('INTERSTATE');
-  const [passengerCount, setPassengerCount] = useState(1);
-  const [passengerType, setPassengerType] = useState('Adult');
-  const [validityMinutes, setValidityMinutes] = useState(30);
-  const [zoneNumberSize, setZoneNumberSize] = useState(45);
-  const [isInterstateMode, setIsInterstateMode] = useState(true);
-  
-  const [colors, setColors] = useState({
-    qrBackground: '#d8b4fe',
-    progressColors: ['#7c3aed', '#ec4899', '#22c55e'],
-    zoneNameColor: '#FF0000'
-  });
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  const [timeRemaining, setTimeRemaining] = useState(validityMinutes * 60);
-  const [isActive, setIsActive] = useState(true);
-  const [qrCodeImage, setQrCodeImage] = useState(null);
-  const [blinkSpeed, setBlinkSpeed] = useState(500);
-  const [showProgress, setShowProgress] = useState(true);
-  const [qrPattern] = useState(() => {
-    const pattern = Array(29).fill(null).map(() => Array(29).fill(false));
-    
-    const addCornerMarker = (startX, startY) => {
-      for (let i = 0; i < 7; i++) {
-        for (let j = 0; j < 7; j++) {
-          if (i === 0 || i === 6 || j === 0 || j === 6) {
-            pattern[startX + i][startY + j] = true;
-          }
-        }
-      }
-      for (let i = 2; i < 5; i++) {
-        for (let j = 2; j < 5; j++) {
-          pattern[startX + i][startY + j] = true;
-        }
-      }
-    };
-    
-    addCornerMarker(0, 0);
-    addCornerMarker(0, 22);
-    addCornerMarker(22, 0);
-    
-    for (let i = 8; i < 22; i++) {
-      for (let j = 8; j < 22; j++) {
-        pattern[i][j] = Math.random() > 0.5;
-      }
+  <!-- React + ReactDOM + Babel CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
     }
-    
-    for (let i = 8; i < 29; i++) {
-      for (let j = 0; j < 8; j++) {
-        if (Math.random() > 0.6) pattern[i][j] = true;
-      }
-    }
-    
-    for (let i = 0; i < 8; i++) {
-      for (let j = 8; j < 29; j++) {
-        if (Math.random() > 0.6) pattern[i][j] = true;
-      }
-    }
-    
-    return pattern;
-  });
-  
-  const fileInputRef = useRef(null);
-  const qrInputRef = useRef(null);
+  </style>
+</head>
+<body class="bg-black">
+  <div id="root" class="min-h-screen flex items-center justify-center"></div>
 
-  useEffect(() => {
-    if (!isActive || timeRemaining <= 0) return;
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-    const interval = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          setIsActive(false);
-          return 0;
-        }
-        return prev - 1;
+    function TicketDemo() {
+      const [view, setView] = useState('ticket');
+      const [zoneNumber, setZoneNumber] = useState(2);
+      const [zoneName, setZoneName] = useState('INTERSTATE');
+      const [passengerCount, setPassengerCount] = useState(1);
+      const [passengerType, setPassengerType] = useState('Adult');
+      const [validityMinutes, setValidityMinutes] = useState(60);
+      const [zoneNumberSize, setZoneNumberSize] = useState(45);
+      const [isInterstateMode, setIsInterstateMode] = useState(true);
+
+      const [colors, setColors] = useState({
+        qrBackground: '#d8b4fe',
+        progressColors: ['#7c3aed', '#ec4899', '#22c55e'],
+        zoneNameColor: '#FF0000'
       });
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, [isActive, timeRemaining]);
+      const [timeRemaining, setTimeRemaining] = useState(60 * 60);
+      const [isActive, setIsActive] = useState(true);
+      const [qrCodeImage, setQrCodeImage] = useState(null);
+      const [blinkSpeed, setBlinkSpeed] = useState(500);
+      const [showProgress, setShowProgress] = useState(true);
 
-  useEffect(() => {
-    const blinkInterval = setInterval(() => {
-      setShowProgress(prev => !prev);
-    }, blinkSpeed);
+      const [qrPattern] = useState(() => {
+        const pattern = Array(29)
+          .fill(null)
+          .map(() => Array(29).fill(false));
 
-    return () => clearInterval(blinkInterval);
-  }, [blinkSpeed]);
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const progressPercentage = (timeRemaining / (validityMinutes * 60)) * 100;
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-
-        const samples = [
-          ctx.getImageData(img.width * 0.3, img.height * 0.3, 1, 1).data,
-          ctx.getImageData(img.width * 0.5, img.height * 0.5, 1, 1).data,
-          ctx.getImageData(img.width * 0.7, img.height * 0.7, 1, 1).data,
-        ];
-
-        const rgbToHex = (r, g, b) => {
-          return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        const addCornerMarker = (startX, startY) => {
+          for (let i = 0; i < 7; i++) {
+            for (let j = 0; j < 7; j++) {
+              if (i === 0 || i === 6 || j === 0 || j === 6) {
+                pattern[startX + i][startY + j] = true;
+              }
+            }
+          }
+          for (let i = 2; i < 5; i++) {
+            for (let j = 2; j < 5; j++) {
+              pattern[startX + i][startY + j] = true;
+            }
+          }
         };
 
-        setColors({
-          qrBackground: rgbToHex(samples[0][0], samples[0][1], samples[0][2]),
-          progressColors: [
-            rgbToHex(samples[0][0], samples[0][1], samples[0][2]),
-            rgbToHex(samples[1][0], samples[1][1], samples[1][2]),
-            rgbToHex(samples[2][0], samples[2][1], samples[2][2])
-          ]
-        });
+        addCornerMarker(0, 0);
+        addCornerMarker(0, 22);
+        addCornerMarker(22, 0);
+
+        for (let i = 8; i < 22; i++) {
+          for (let j = 8; j < 22; j++) {
+            pattern[i][j] = Math.random() > 0.5;
+          }
+        }
+
+        for (let i = 8; i < 29; i++) {
+          for (let j = 0; j < 8; j++) {
+            if (Math.random() > 0.6) pattern[i][j] = true;
+          }
+        }
+
+        for (let i = 0; i < 8; i++) {
+          for (let j = 8; j < 29; j++) {
+            if (Math.random() > 0.6) pattern[i][j] = true;
+          }
+        }
+
+        return pattern;
+      });
+
+      const fileInputRef = useRef(null);
+      const qrInputRef = useRef(null);
+
+      // Timer tick
+      useEffect(() => {
+        if (!isActive || timeRemaining <= 0) return;
+
+        const interval = setInterval(() => {
+          setTimeRemaining(prev => {
+            if (prev <= 1) {
+              setIsActive(false);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+
+        return () => clearInterval(interval);
+      }, [isActive, timeRemaining]);
+
+      // Progress blink
+      useEffect(() => {
+        const blinkInterval = setInterval(() => {
+          setShowProgress(prev => !prev);
+        }, blinkSpeed);
+
+        return () => clearInterval(blinkInterval);
+      }, [blinkSpeed]);
+
+      const formatTime = seconds => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
       };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  };
 
-  const handleQrUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+      const progressPercentage =
+        (timeRemaining / (validityMinutes * 60 || 1)) * 100;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setQrCodeImage(event.target.result);
-    };
-    reader.readAsDataURL(file);
-  };
+      const handleImageUpload = e => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-  const resetTimer = () => {
-    setTimeRemaining(validityMinutes * 60);
-    setIsActive(true);
-  };
+        const reader = new FileReader();
+        reader.onload = event => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
 
-  const toggleInterstateMode = () => {
-    if (!isInterstateMode) {
-      // Switch to Interstate mode
-      setZoneName('INTERSTATE');
-      setColors({...colors, zoneNameColor: '#FF0000'});
-      setValidityMinutes(30);
-      setTimeRemaining(30 * 60);
-    } else {
-      // Switch back to Intrastate mode
-      setZoneName('INTRASTATE');
-      setColors({...colors, zoneNameColor: '#000000'});
-      setValidityMinutes(60);
-      setTimeRemaining(60 * 60);
-    }
-    setIsInterstateMode(!isInterstateMode);
-  };
+            const samples = [
+              ctx.getImageData(
+                img.width * 0.3,
+                img.height * 0.3,
+                1,
+                1
+              ).data,
+              ctx.getImageData(
+                img.width * 0.5,
+                img.height * 0.5,
+                1,
+                1
+              ).data,
+              ctx.getImageData(
+                img.width * 0.7,
+                img.height * 0.7,
+                1,
+                1
+              ).data
+            ];
 
-  return (
-    <div className="min-h-screen flex flex-col" style={{ maxWidth: '430px', margin: '0 auto' }}>
-      {view === 'ticket' ? (
-        <>
-          <div className="bg-blue-500">
-            <div className="flex items-center justify-between px-4 py-4 text-white" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
-              <button className="p-1">
-                <ChevronLeft className="w-7 h-7" strokeWidth={2.5} />
-              </button>
-              <h1 className="text-base font-medium">One Way Ticket</h1>
-              <button onClick={() => setView('customize')} className="p-1 opacity-0">
-                <Settings className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
+            const rgbToHex = (r, g, b) =>
+              '#' +
+              [r, g, b]
+                .map(x => x.toString(16).padStart(2, '0'))
+                .join('');
 
-          <div className="flex-1 relative bg-white">
-            
-            <div className="absolute inset-0 bg-blue-500" style={{ 
-              bottom: '68%',
-              borderBottomLeftRadius: '8px',
-              borderBottomRightRadius: '8px'
-            }}></div>
-            
-            <div className="px-4 pt-2 pb-12 relative z-10" style={{ paddingBottom: 'max(3rem, env(safe-area-inset-bottom))' }}>
-              
-              <div className="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl">
-
-  {/* --- QR Section --- */}
-  <div className="pt-7 pb-0 px-6 flex flex-col items-center">
-    <div
-      className="w-40 h-40 rounded-2xl flex items-center justify-center mb-0"
-      style={{ backgroundColor: colors.qrBackground }}
-    >
-      {qrCodeImage ? (
-        <img
-          src={qrCodeImage}
-          alt="QR Code"
-          className="w-32 h-32 object-contain"
-        />
-      ) : (
-        <svg className="w-32 h-32" viewBox="0 0 29 29">
-          <rect x="0" y="0" width="29" height="29" fill="white" />
-          {qrPattern.map((row, i) =>
-            row.map(
-              (isBlack, j) =>
-                isBlack && (
-                  <rect
-                    key={`${i}-${j}`}
-                    x={j}
-                    y={i}
-                    width="0.95"
-                    height="0.95"
-                    fill="black"
-                  />
+            setColors({
+              qrBackground: rgbToHex(
+                samples[0][0],
+                samples[0][1],
+                samples[0][2]
+              ),
+              progressColors: [
+                rgbToHex(
+                  samples[0][0],
+                  samples[0][1],
+                  samples[0][2]
+                ),
+                rgbToHex(
+                  samples[1][0],
+                  samples[1][1],
+                  samples[1][2]
+                ),
+                rgbToHex(
+                  samples[2][0],
+                  samples[2][1],
+                  samples[2][2]
                 )
-            )
-          )}
-        </svg>
-      )}
-    </div>
+              ],
+              zoneNameColor: colors.zoneNameColor
+            });
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      };
 
-    <p className="text-gray-500 font-semibold mb-0" style={{ fontSize: "10px" }}>Tap to enlarge</p>
-  </div>
+      const handleQrUpload = e => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-  {/* Dashed Divider */}
-  <div className="px-10 py-0">
-    <div className="border-t-2 border-dashed border-gray-200"></div>
-  </div>
+        const reader = new FileReader();
+        reader.onload = event => {
+          setQrCodeImage(event.target.result);
+        };
+        reader.readAsDataURL(file);
+      };
 
-  {/* TEXT SECTION */}
-  <div className="px-6 text-center" style={{ marginTop: "8px" }}>
-    <h2
-      className="tracking-tight"
-      style={{
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontSize: "30px",
-        fontWeight: "650",
-        lineHeight: "1",
-        marginBottom: "12px",
-        marginTop: "4px",
-        color: colors.zoneNameColor,
-      }}
-    >
-      {zoneName}
-    </h2>
-    <div
-      className="font-bold leading-none"
-      style={{
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
-        fontSize: `${zoneNumberSize}px`,
-        fontWeight: "900",
-        lineHeight: "0.65",
-        marginTop: "0px",
-        marginBottom: "16px",
-      }}
-    >
-      {zoneNumber}
-    </div>
-    <p
-      className="font-semibold"
-      style={{
-        fontSize: "17px",
-        marginTop: "0px",
-        marginBottom: "8px",
-        lineHeight: "1",
-      }}
-    >
-      ZONE RIDE
-    </p>
-    <p
-      className="font-semibold"
-      style={{
-        fontSize: "15px",
-        marginTop: "0px",
-        marginBottom: "0px",
-        lineHeight: "1",
-      }}
-    >
-      {passengerCount} {passengerType}
-    </p>
-  </div>
-  
-  {/* SPACING - Text section should be about 2x the gap to progress bar */}
-  <div style={{ height: "180px" }}></div>
+      const resetTimer = () => {
+        setTimeRemaining(validityMinutes * 60);
+        setIsActive(true);
+      };
 
-  {/* --- Bottom Section --- */}
-  <div className="px-8 pb-3 text-center">
+      const toggleInterstateMode = () => {
+        if (!isInterstateMode) {
+          // Switch to Interstate mode
+          setZoneName('INTERSTATE');
+          setColors(prev => ({
+            ...prev,
+            zoneNameColor: '#FF0000'
+          }));
+          setValidityMinutes(60);
+          setTimeRemaining(60 * 60);
+        } else {
+          // Switch back to Intrastate mode
+          setZoneName('INTRASTATE');
+          setColors(prev => ({
+            ...prev,
+            zoneNameColor: '#000000'
+          }));
+          setValidityMinutes(30);
+          setTimeRemaining(30 * 60);
+        }
+        setIsInterstateMode(prev => !prev);
+      };
 
-    {/* Progress Bar */}
-    <div className="w-full mb-4">
-      <div className="flex h-4 overflow-hidden bg-white">
-        {showProgress && (
-          <div
-            className="transition-all duration-300 w-full"
-            style={{
-              background: `linear-gradient(to right, ${colors.progressColors[0]} 0%, ${colors.progressColors[0]} 30%, ${colors.progressColors[1]} 30%, ${colors.progressColors[1]} 65%, ${colors.progressColors[2]} 65%, ${colors.progressColors[2]} 100%)`,
-            }}
-          />
-        )}
-      </div>
-    </div>
-
-    <div
-      className="w-full bg-gray-200"
-      style={{ height: "2px", marginTop: "12px", marginBottom: "20px" }}
-    ></div>
-
-    <div style={{ marginBottom: "12px" }}>
-      <p
-        className="font-bold"
-        style={{
-          fontFamily:
-            '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-          fontSize: "20px",
-          lineHeight: "1",
-        }}
-      >
-        Expires in {formatTime(timeRemaining)}
-      </p>
-    </div>
-
-    <a
-      href="#"
-      className="underline text-gray-900"
-      style={{
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontSize: "11px",
-      }}
-    >
-      View Onboard Validator Instructions
-    </a>
-  </div>
-</div>
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="flex-1 p-4 overflow-auto bg-blue-500">
-          <div className="max-w-md mx-auto bg-white rounded-2xl p-6 shadow-xl">
-            <div className="flex items-center justify-between mb-6">
-              <button onClick={() => setView('ticket')}>
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <h2 className="text-xl font-bold">Customize</h2>
-              <div className="w-6"></div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold mb-2">Quick Mode Switch</label>
-                <button
-                  onClick={toggleInterstateMode}
-                  className={`w-full py-4 rounded-xl font-semibold text-white ${
-                    isInterstateMode ? 'bg-red-600' : 'bg-black'
-                  }`}
-                >
-                  {isInterstateMode ? '🔴 INTERSTATE MODE (30 min)' : '⚫ INTRASTATE MODE (60 min)'}
-                </button>
-                <p className="text-xs text-gray-500 mt-2">
-                  {isInterstateMode 
-                    ? 'Interstate: Red text, 30 min timer' 
-                    : 'Intrastate: Black text, 60 min timer'}
-                </p>
-              </div>
-
-              <div className="border-t-2 border-gray-200 pt-4"></div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Zone Number Size</label>
-                <input
-                  type="range"
-                  min="80"
-                  max="130"
-                  value={zoneNumberSize}
-                  onChange={(e) => setZoneNumberSize(parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <div className="text-center text-sm text-gray-600">{zoneNumberSize}px</div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Upload Your QR Code</label>
-                <input
-                  ref={qrInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleQrUpload}
-                  className="hidden"
-                />
-                <button
-                  onClick={() => qrInputRef.current?.click()}
-                  className="w-full border-2 border-dashed rounded-xl p-4 hover:border-purple-500 bg-purple-50"
-                >
-                  {qrCodeImage ? '✅ QR Code Set' : '📷 Upload QR Code from Screenshot'}
-                </button>
-                <p className="text-xs text-gray-500 mt-1">Upload once and it stays permanent</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Upload Image for Colors (Optional)</label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full border-2 border-dashed rounded-xl p-4 hover:border-blue-500"
-                >
-                  📸 Upload Screenshot
-                </button>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Zone Number</label>
-                <input
-                  type="number"
-                  value={zoneNumber}
-                  onChange={(e) => setZoneNumber(parseInt(e.target.value) || 1)}
-                  className="w-full px-4 py-3 border rounded-xl text-center text-2xl font-bold"
-                  min="1"
-                  max="10"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Zone Name</label>
-                <input
-                  type="text"
-                  value={zoneName}
-                  onChange={(e) => setZoneName(e.target.value.toUpperCase())}
-                  className="w-full px-4 py-3 border rounded-xl uppercase"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-semibold mb-2">Passengers</label>
-                  <input
-                    type="number"
-                    value={passengerCount}
-                    onChange={(e) => setPassengerCount(parseInt(e.target.value) || 1)}
-                    className="w-full px-4 py-3 border rounded-xl"
-                    min="1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-2">Type</label>
-                  <select
-                    value={passengerType}
-                    onChange={(e) => setPassengerType(e.target.value)}
-                    className="w-full px-4 py-3 border rounded-xl"
-                  >
-                    <option>Adult</option>
-                    <option>Child</option>
-                    <option>Senior</option>
-                    <option>Student</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Duration (minutes)</label>
-                <input
-                  type="number"
-                  value={validityMinutes}
-                  onChange={(e) => {
-                    const mins = parseInt(e.target.value) || 30;
-                    setValidityMinutes(mins);
-                    setTimeRemaining(mins * 60);
+      return (
+        <div
+          className="min-h-screen flex flex-col"
+          style={{ maxWidth: '430px', margin: '0 auto' }}
+        >
+          {view === 'ticket' ? (
+            <>
+              {/* Top blue bar */}
+              <div className="bg-blue-500">
+                <div
+                  className="flex items-center justify-between px-4 py-4 text-white"
+                  style={{
+                    paddingTop: 'max(1rem, env(safe-area-inset-top))'
                   }}
-                  className="w-full px-4 py-3 border rounded-xl"
-                  min="1"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Zone Name Color</label>
-                <input
-                  type="color"
-                  value={colors.zoneNameColor}
-                  onChange={(e) => setColors({...colors, zoneNameColor: e.target.value})}
-                  className="w-full h-12 rounded-xl cursor-pointer"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">QR Background</label>
-                <input
-                  type="color"
-                  value={colors.qrBackground}
-                  onChange={(e) => setColors({...colors, qrBackground: e.target.value})}
-                  className="w-full h-12 rounded-xl cursor-pointer"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Progress Bar Colors</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {colors.progressColors.map((color, idx) => (
-                    <input
-                      key={idx}
-                      type="color"
-                      value={color}
-                      onChange={(e) => {
-                        const newColors = [...colors.progressColors];
-                        newColors[idx] = e.target.value;
-                        setColors({...colors, progressColors: newColors});
-                      }}
-                      className="w-full h-12 rounded-xl cursor-pointer"
-                    />
-                  ))}
+                >
+                  <button className="p-1">
+                    {/* Simple chevron icon */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-7 h-7"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+                  <h1 className="text-base font-medium">
+                    One Way Ticket
+                  </h1>
+                  {/* Right side placeholder to keep title centered */}
+                  <div className="w-7 h-7" />
                 </div>
               </div>
 
-              <div className="border-t-2 border-gray-200 pt-4 mt-4">
-                <h3 className="font-bold text-gray-800 mb-3">Progress Bar Animation</h3>
-                <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Blink Speed: {blinkSpeed}ms (blinks {Math.round(1000/blinkSpeed)} times/second)
-                  </label>
-                  <input
-                    type="range"
-                    min="100"
-                    max="2000"
-                    step="100"
-                    value={blinkSpeed}
-                    onChange={(e) => setBlinkSpeed(parseInt(e.target.value))}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Fast (100ms)</span>
-                    <span>Slow (2000ms)</span>
+              {/* Background */}
+              <div className="flex-1 relative bg-white">
+                <div
+                  className="absolute inset-0 bg-blue-500"
+                  style={{
+                    bottom: '68%',
+                    borderBottomLeftRadius: '8px',
+                    borderBottomRightRadius: '8px'
+                  }}
+                ></div>
+
+                <div
+                  className="px-4 pt-2 pb-12 relative z-10"
+                  style={{
+                    paddingBottom:
+                      'max(3rem, env(safe-area-inset-bottom))'
+                  }}
+                >
+                  <div className="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl">
+                    {/* QR Section */}
+                    <div className="pt-7 pb-0 px-6 flex flex-col items-center">
+                      <div
+                        className="w-40 h-40 rounded-2xl flex items-center justify-center mb-0"
+                        style={{
+                          backgroundColor: colors.qrBackground
+                        }}
+                      >
+                        {qrCodeImage ? (
+                          <img
+                            src={qrCodeImage}
+                            alt="QR Code"
+                            className="w-32 h-32 object-contain"
+                          />
+                        ) : (
+                          <svg
+                            className="w-32 h-32"
+                            viewBox="0 0 29 29"
+                          >
+                            <rect
+                              x="0"
+                              y="0"
+                              width="29"
+                              height="29"
+                              fill="white"
+                            />
+                            {qrPattern.map((row, i) =>
+                              row.map(
+                                (isBlack, j) =>
+                                  isBlack && (
+                                    <rect
+                                      key={`${i}-${j}`}
+                                      x={j}
+                                      y={i}
+                                      width="0.95"
+                                      height="0.95"
+                                      fill="black"
+                                    />
+                                  )
+                              )
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <p
+                        className="text-gray-500 font-semibold mb-0"
+                        style={{ fontSize: '10px' }}
+                      >
+                        Tap to enlarge
+                      </p>
+                    </div>
+
+                    {/* Dashed Divider */}
+                    <div className="px-10 py-0">
+                      <div className="border-t-2 border-dashed border-gray-200"></div>
+                    </div>
+
+                    {/* Text Section */}
+                    <div
+                      className="px-6 text-center"
+                      style={{ marginTop: '8px' }}
+                    >
+                      <h2
+                        className="tracking-tight"
+                        style={{
+                          fontFamily:
+                            '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                          fontSize: '30px',
+                          fontWeight: '650',
+                          lineHeight: '1',
+                          marginBottom: '12px',
+                          marginTop: '4px',
+                          color: colors.zoneNameColor
+                        }}
+                      >
+                        {zoneName}
+                      </h2>
+                      <div
+                        className="font-bold leading-none"
+                        style={{
+                          fontFamily:
+                            '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
+                          fontSize: `${zoneNumberSize}px`,
+                          fontWeight: '900',
+                          lineHeight: '0.65',
+                          marginTop: '0px',
+                          marginBottom: '16px'
+                        }}
+                      >
+                        {zoneNumber}
+                      </div>
+                      <p
+                        className="font-semibold"
+                        style={{
+                          fontSize: '17px',
+                          marginTop: '0px',
+                          marginBottom: '8px',
+                          lineHeight: '1'
+                        }}
+                      >
+                        ZONE RIDE
+                      </p>
+                      <p
+                        className="font-semibold"
+                        style={{
+                          fontSize: '15px',
+                          marginTop: '0px',
+                          marginBottom: '0px',
+                          lineHeight: '1'
+                        }}
+                      >
+                        {passengerCount} {passengerType}
+                      </p>
+                    </div>
+
+                    {/* Spacer to progress bar */}
+                    <div style={{ height: '180px' }}></div>
+
+                    {/* Bottom Section */}
+                    <div className="px-8 pb-3 text-center">
+                      {/* Progress Bar */}
+                      <div className="w-full mb-4">
+                        <div className="flex h-4 overflow-hidden bg-white">
+                          {showProgress && (
+                            <div
+                              className="transition-all duration-300"
+                              style={{
+                                width:
+                                  Math.max(
+                                    0,
+                                    Math.min(100, progressPercentage)
+                                  ) + '%',
+                                background: `linear-gradient(to right, ${colors.progressColors[0]} 0%, ${colors.progressColors[0]} 30%, ${colors.progressColors[1]} 30%, ${colors.progressColors[1]} 65%, ${colors.progressColors[2]} 65%, ${colors.progressColors[2]} 100%)`
+                              }}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <div
+                        className="w-full bg-gray-200"
+                        style={{
+                          height: '2px',
+                          marginTop: '12px',
+                          marginBottom: '20px'
+                        }}
+                      ></div>
+
+                      <div style={{ marginBottom: '12px' }}>
+                        <p
+                          className="font-bold"
+                          style={{
+                            fontFamily:
+                              '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                            fontSize: '20px',
+                            lineHeight: '1'
+                          }}
+                        >
+                          Expires in {formatTime(timeRemaining)}
+                        </p>
+                      </div>
+
+                      <a
+                        href="#"
+                        className="underline text-gray-900"
+                        style={{
+                          fontFamily:
+                            '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                          fontSize: '11px'
+                        }}
+                      >
+                        View Onboard Validator Instructions
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div className="border-t-2 border-gray-200 pt-4 mt-4">
-                <h3 className="font-bold text-gray-800 mb-3">Timer Controls</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={resetTimer}
-                    className="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold"
-                  >
-                    🔄 Reset Timer
+            </>
+          ) : (
+            // Customize View
+            <div className="flex-1 p-4 overflow-auto bg-blue-500">
+              <div className="max-w-md mx-auto bg-white rounded-2xl p-6 shadow-xl">
+                <div className="flex items-center justify-between mb-6">
+                  <button onClick={() => setView('ticket')}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-6 h-6"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
                   </button>
+                  <h2 className="text-xl font-bold">
+                    Customize
+                  </h2>
+                  <div className="w-6" />
+                </div>
+
+                <div className="space-y-4">
+                  {/* Mode switch */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      Quick Mode Switch
+                    </label>
+                    <button
+                      onClick={toggleInterstateMode}
+                      className={`w-full py-4 rounded-xl font-semibold text-white ${
+                        isInterstateMode
+                          ? 'bg-red-600'
+                          : 'bg-black'
+                      }`}
+                    >
+                      {isInterstateMode
+                        ? '🔴 INTERSTATE MODE (60 min)'
+                        : '⚫ INTRASTATE MODE (30 min)'}
+                    </button>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {isInterstateMode
+                        ? 'Interstate: Red text, 60 min timer'
+                        : 'Intrastate: Black text, 30 min timer'}
+                    </p>
+                  </div>
+
+                  <div className="border-t-2 border-gray-200 pt-4"></div>
+
+                  {/* Zone number size */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      Zone Number Size
+                    </label>
+                    <input
+                      type="range"
+                      min="80"
+                      max="130"
+                      value={zoneNumberSize}
+                      onChange={e =>
+                        setZoneNumberSize(
+                          parseInt(e.target.value) || 80
+                        )
+                      }
+                      className="w-full"
+                    />
+                    <div className="text-center text-sm text-gray-600">
+                      {zoneNumberSize}px
+                    </div>
+                  </div>
+
+                  {/* QR Upload */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      Upload Your QR Code
+                    </label>
+                    <input
+                      ref={qrInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleQrUpload}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() =>
+                        qrInputRef.current &&
+                        qrInputRef.current.click()
+                      }
+                      className="w-full border-2 border-dashed rounded-xl p-4 hover:border-purple-500 bg-purple-50"
+                    >
+                      {qrCodeImage
+                        ? '✅ QR Code Set'
+                        : '📷 Upload QR Code from Screenshot'}
+                    </button>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Upload once and it stays permanent
+                    </p>
+                  </div>
+
+                  {/* Screenshot for colors */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      Upload Image for Colors (Optional)
+                    </label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() =>
+                        fileInputRef.current &&
+                        fileInputRef.current.click()
+                      }
+                      className="w-full border-2 border-dashed rounded-xl p-4 hover:border-blue-500"
+                    >
+                      📸 Upload Screenshot
+                    </button>
+                  </div>
+
+                  {/* Zone number */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      Zone Number
+                    </label>
+                    <input
+                      type="number"
+                      value={zoneNumber}
+                      onChange={e =>
+                        setZoneNumber(
+                          parseInt(e.target.value) || 1
+                        )
+                      }
+                      className="w-full px-4 py-3 border rounded-xl text-center text-2xl font-bold"
+                      min="1"
+                      max="10"
+                    />
+                  </div>
+
+                  {/* Zone name */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      Zone Name
+                    </label>
+                    <input
+                      type="text"
+                      value={zoneName}
+                      onChange={e =>
+                        setZoneName(
+                          e.target.value.toUpperCase()
+                        )
+                      }
+                      className="w-full px-4 py-3 border rounded-xl uppercase"
+                    />
+                  </div>
+
+                  {/* Passengers + type */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-semibold mb-2">
+                        Passengers
+                      </label>
+                      <input
+                        type="number"
+                        value={passengerCount}
+                        onChange={e =>
+                          setPassengerCount(
+                            parseInt(e.target.value) || 1
+                          )
+                        }
+                        className="w-full px-4 py-3 border rounded-xl"
+                        min="1"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-2">
+                        Type
+                      </label>
+                      <select
+                        value={passengerType}
+                        onChange={e =>
+                          setPassengerType(e.target.value)
+                        }
+                        className="w-full px-4 py-3 border rounded-xl"
+                      >
+                        <option>Adult</option>
+                        <option>Child</option>
+                        <option>Senior</option>
+                        <option>Student</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Duration */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      Duration (minutes)
+                    </label>
+                    <input
+                      type="number"
+                      value={validityMinutes}
+                      onChange={e => {
+                        const mins =
+                          parseInt(e.target.value) || 30;
+                        setValidityMinutes(mins);
+                        setTimeRemaining(mins * 60);
+                      }}
+                      className="w-full px-4 py-3 border rounded-xl"
+                      min="1"
+                    />
+                  </div>
+
+                  {/* Zone Name Color */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      Zone Name Color
+                    </label>
+                    <input
+                      type="color"
+                      value={colors.zoneNameColor}
+                      onChange={e =>
+                        setColors(prev => ({
+                          ...prev,
+                          zoneNameColor: e.target.value
+                        }))
+                      }
+                      className="w-full h-12 rounded-xl cursor-pointer"
+                    />
+                  </div>
+
+                  {/* QR Background */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      QR Background
+                    </label>
+                    <input
+                      type="color"
+                      value={colors.qrBackground}
+                      onChange={e =>
+                        setColors(prev => ({
+                          ...prev,
+                          qrBackground: e.target.value
+                        }))
+                      }
+                      className="w-full h-12 rounded-xl cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Progress Bar Colors */}
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">
+                      Progress Bar Colors
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {colors.progressColors.map(
+                        (color, idx) => (
+                          <input
+                            key={idx}
+                            type="color"
+                            value={color}
+                            onChange={e => {
+                              const newColors = [
+                                ...colors.progressColors
+                              ];
+                              newColors[idx] =
+                                e.target.value;
+                              setColors(prev => ({
+                                ...prev,
+                                progressColors: newColors
+                              }));
+                            }}
+                            className="w-full h-12 rounded-xl cursor-pointer"
+                          />
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Progress bar animation */}
+                  <div className="border-t-2 border-gray-200 pt-4 mt-4">
+                    <h3 className="font-bold text-gray-800 mb-3">
+                      Progress Bar Animation
+                    </h3>
+                    <div>
+                      <label className="block text-sm font-semibold mb-2">
+                        Blink Speed: {blinkSpeed}ms (blinks{' '}
+                        {Math.round(
+                          1000 / blinkSpeed
+                        )}{' '}
+                        times/second)
+                      </label>
+                      <input
+                        type="range"
+                        min="100"
+                        max="2000"
+                        step="100"
+                        value={blinkSpeed}
+                        onChange={e =>
+                          setBlinkSpeed(
+                            parseInt(e.target.value) || 500
+                          )
+                        }
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Fast (100ms)</span>
+                        <span>Slow (2000ms)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timer controls */}
+                  <div className="border-t-2 border-gray-200 pt-4 mt-4">
+                    <h3 className="font-bold text-gray-800 mb-3">
+                      Timer Controls
+                    </h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={resetTimer}
+                        className="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold"
+                      >
+                        🔄 Reset Timer
+                      </button>
+                      <button
+                        onClick={() =>
+                          setIsActive(prev => !prev)
+                        }
+                        className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-semibold"
+                      >
+                        {isActive ? '⏸️ Pause' : '▶️ Resume'}
+                      </button>
+                    </div>
+                  </div>
+
                   <button
-                    onClick={() => setIsActive(!isActive)}
-                    className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-semibold"
+                    onClick={() => setView('ticket')}
+                    className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold mt-4"
                   >
-                    {isActive ? '⏸️ Pause' : '▶️ Resume'}
+                    Apply Changes
                   </button>
                 </div>
               </div>
-
-              <button
-                onClick={() => setView('ticket')}
-                className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold mt-4"
-              >
-                Apply Changes
-              </button>
             </div>
-          </div>
+          )}
         </div>
-      )}
-    </div>
-  );
-};
+      );
+    }
 
-export default TicketDemo;
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<TicketDemo />);
+  </script>
+</body>
+</html>
