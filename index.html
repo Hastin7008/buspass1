@@ -1,95 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
-  <meta charset="UTF-8" />
-  <title>One Way Ticket</title>
+    <!-- 🔥 PERFECT MOBILE VIEW (no zoom, no stretching) -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
 
-  <!-- ⭐ IMPORTANT: Disable zoom + fix safe-area + prevent scaling issues -->
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>One Way Ticket</title>
 
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- React 17 + ReactDOM 17 + Babel -->
-  <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- React + Babel -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-text-size-adjust: none !important; /* ⭐ stops Safari auto-zoom */
-      touch-action: manipulation; /* prevents accidental zoom */
-    }
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        overscroll-behavior: none;
+      }
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      overflow-x: hidden;
-      overscroll-behavior-y: none; /*⭐ prevents rubber band zoom bug */
-      height: 100%;
-      width: 100%;
-    }
+      /* Center app like NJ Transit */
+      body {
+        display: flex;
+        justify-content: center;
+        overflow-y: auto;
+      }
 
-    /* ⭐ ROOT WRAPPER to keep layout centered and fixed like NJ Transit */
-    #root-wrapper {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
-    }
+      /* iPhone width container */
+      #root {
+        width: 100%;
+        max-width: 430px;
+        margin: 0 auto;
+      }
 
-    /* ⭐ Prevent double-tap zoom (iOS) */
-    body {
-      touch-action: pan-y;
-    }
-  </style>
-</head>
+      /* NJ EXACT CARD SIZE + SPACING */
+      .ticket-card {
+        width: 94%; /* white card margins same as screenshot */
+        max-width: 500px;
+        margin: 18px auto 28px auto; /* top and bottom spacing */
+        border-radius: 28px;
+      }
 
-<body>
-  <!-- ⭐ Important wrapper to stabilize scaling -->
-  <div id="root-wrapper">
-    <div id="root" style="width:96%; max-width:480px;"></div>
-  </div>
+      /* Safe area support */
+      .header-safe {
+        padding-top: env(safe-area-inset-top, 14px);
+      }
+    </style>
+  </head>
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+  <body>
+    <div id="root"></div>
 
-    /* ---------- YOUR REACT CODE BELOW (unchanged) ---------- */
-    /* I do NOT touch your UI — only layout logic above is changed */
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React;
 
-    const ChevronLeft = ({ className, strokeWidth = 2.5 }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="15 18 9 12 15 6" />
-      </svg>
-    );
+      /** Simple inline icons **/
+      const ChevronLeft = ({ className, strokeWidth = 2.5 }) => (
+        <svg
+          className={className}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      );
 
-    const Settings = ({ className }) => (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <path
-          d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.6 15a1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 3.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 3.6a1.65 1.65 0 0 0 1-1.51V2a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 16 3.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z" />
-      </svg>
-    );
+      const TicketDemo = () => {
+        const [zoneName, setZoneName] = useState("INTRASTATE");
+        const [zoneNumber, setZoneNumber] = useState(2);
+        const [zoneNumberSize, setZoneNumberSize] = useState(100);
 
-    /* ------- Your TicketDemo component pasted EXACTLY as-is ------- */
+        const [colors, setColors] = useState({
+          qrBackground: "#d8b4fe",
+          progressColors: ["#7c3aed", "#ec4899", "#22c55e"],
+          zoneNameColor: "#000",
+        });
 
-    /* (Your full JS code stays unchanged from here down — I skip repeat to save space) */
+        const [timeRemaining, setTimeRemaining] = useState(30 * 60);
+        const [isActive, setIsActive] = useState(true);
+        const [qrCodeImage, setQrCodeImage] = useState(null);
+        const [showProgress, setShowProgress] = useState(true);
 
-    /* I KEEP EVERYTHING EXACTLY THE SAME as you pasted it */
+        useEffect(() => {
+          if (!isActive) return;
 
-    /* ---------- END REACT CODE ---------- */
+          const interval = setInterval(() => {
+            setTimeRemaining((prev) => Math.max(prev - 1, 0));
+          }, 1000);
 
-    /* Mount app */
-    ReactDOM.render(<TicketDemo />, document.getElementById("root"));
-  </script>
-</body>
+          return () => clearInterval(interval);
+        }, [isActive]);
 
+        useEffect(() => {
+          const blink = setInterval(
+            () => setShowProgress((p) => !p),
+            500
+          );
+          return () => clearInterval(blink);
+        }, []);
+
+        const formatTime = (s) =>
+          `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+        return (
+          <div className="min-h-screen bg-blue-500 flex flex-col">
+            {/* HEADER */}
+            <div className="bg-blue-500">
+              <div
+                className="header-safe flex items-center justify-between px-4 py-4 text-white"
+              >
+                <button>
+                  <ChevronLeft className="w-7 h-7" />
+                </button>
+                <h1 className="text-base font-medium">One Way Ticket</h1>
+                <div className="w-6 h-6 opacity-0"></div>
+              </div>
+            </div>
+
+            {/* WHITE CARD */}
+            <div className="flex-1 bg-blue-500 flex justify-center items-start pb-8">
+              <div className="ticket-card bg-white shadow-2xl">
+
+                {/* QR */}
+                <div className="pt-7 pb-0 px-6 flex flex-col items-center">
+                  <div
+                    className="w-40 h-40 rounded-2xl flex items-center justify-center"
+                    style={{ backgroundColor: colors.qrBackground }}
+                  >
+                    {qrCodeImage ? (
+                      <img
+                        src={qrCodeImage}
+                        className="w-32 h-32 object-contain"
+                      />
+                    ) : (
+                      <div className="w-32 h-32 bg-black"></div>
+                    )}
+                  </div>
+                  <p
+                    className="text-gray-500 font-semibold"
+                    style={{ fontSize: "10px", marginTop: "6px" }}
+                  >
+                    Tap to enlarge
+                  </p>
+                </div>
+
+                {/* Dashed divider */}
+                <div className="px-10 py-0 mt-3">
+                  <div className="border-t-2 border-dashed border-gray-200"></div>
+                </div>
+
+                {/* TITLE / NUMBER */}
+                <div className="px-6 text-center mt-3">
+                  <h2
+                    style={{
+                      fontSize: "30px",
+                      fontWeight: 650,
+                      color: colors.zoneNameColor,
+                      marginBottom: "10px",
+                    }}
+                  >
+                    {zoneName}
+                  </h2>
+
+                  <div
+                    style={{
+                      fontSize: `${zoneNumberSize}px`,
+                      fontWeight: 900,
+                      lineHeight: 0.65,
+                      marginBottom: "16px",
+                    }}
+                  >
+                    {zoneNumber}
+                  </div>
+
+                  <p className="font-semibold text-[17px] leading-none">
+                    ZONE RIDE
+                  </p>
+                  <p className="font-semibold text-[15px] leading-none mt-1">
+                    1 Adult
+                  </p>
+                </div>
+
+                {/* WHITE GAP like real ticket */}
+                <div style="height: 170px;"></div>
+
+                {/* PROGRESS BAR */}
+                <div className="px-8 pb-4 text-center">
+                  <div className="w-full mb-4">
+                    <div className="flex h-4 overflow-hidden bg-white">
+                      {showProgress && (
+                        <div
+                          className="w-full transition-all duration-300"
+                          style={{
+                            background: `linear-gradient(to right,
+                              ${colors.progressColors[0]} 0%,
+                              ${colors.progressColors[0]} 30%,
+                              ${colors.progressColors[1]} 30%,
+                              ${colors.progressColors[1]} 65%,
+                              ${colors.progressColors[2]} 65%,
+                              ${colors.progressColors[2]} 100%)`,
+                          }}
+                        ></div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-200 w-full h-[2px] my-5"></div>
+
+                  <p className="font-bold text-[20px] leading-none">
+                    Expires in {formatTime(timeRemaining)}
+                  </p>
+
+                  <a
+                    className="underline text-gray-900 block mt-3 text-[11px]"
+                    href="#"
+                  >
+                    View Onboard Validator Instructions
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      ReactDOM.render(<TicketDemo />, document.getElementById("root"));
+    </script>
+  </body>
 </html>
