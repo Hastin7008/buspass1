@@ -14,9 +14,9 @@
        class="w-96 bg-white overflow-y-auto flex flex-col flex-shrink-0 shadow-xl">
     
     <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-      <h2 class="font-bold text-xl">Settings</h2>
+      <h2 class="font-bold text-xl text-black">Settings</h2>
 
-      <!-- Close Button (blue) -->
+      <!-- Close Button (blue X) -->
       <button id="closeSettingsBtn"
         class="p-2 rounded-full"
         style="color:#1797D0; font-size:20px; font-weight:bold;">
@@ -33,7 +33,7 @@
                type="file"
                accept="image/*"
                class="w-full text-sm bg-white p-2 rounded border" />
-        <p class="text-xs text-gray-600 mt-1">Image stays saved (this session)</p>
+        <p class="text-xs text-gray-600 mt-1">Image stays saved for this session</p>
       </div>
 
       <!-- Color Pickers -->
@@ -74,7 +74,7 @@
               <span id="qrTopValue"
                     class="text-xs bg-white px-2 py-1 rounded">82px</span>
             </div>
-            <input id="qrTopSlider" type="range" min="-500" max="700"
+            <input id="qrTopSlider" type="range" min="-500" max="900"
                    value="82" class="w-full" />
           </div>
 
@@ -172,50 +172,38 @@
         <h3 class="font-bold mb-3 text-black">⏱️ Expiry Text Controls</h3>
 
         <div class="space-y-3">
-          <!-- Y position -->
+          <!-- Y Position -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Position Y</label>
               <span id="expiryTopValue"
-                    class="text-xs bg-white px-2 py-1 rounded">575px</span>
+                    class="text-xs bg-white px-2 py-1 rounded">727px</span>
             </div>
             <input id="expiryTopSlider" type="range" min="0" max="900"
-                   value="575" class="w-full" />
+                   value="727" class="w-full" />
           </div>
 
-          <!-- Font size -->
+          <!-- Font Size -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Font Size</label>
               <span id="expiryFontSizeValue"
-                    class="text-xs bg-white px-2 py-1 rounded">30px</span>
+                    class="text-xs bg-white px-2 py-1 rounded">21px</span>
             </div>
             <input id="expiryFontSizeSlider" type="range"
-                   min="16" max="60" value="30" class="w-full" />
+                   min="10" max="60" value="21" class="w-full" />
           </div>
 
-          <!-- Font weight -->
+          <!-- Font Weight (numeric only) -->
           <div>
             <div class="flex justify-between">
-              <label class="text-sm font-medium text-black">
-                Font Weight (100 → 900)
-              </label>
+              <label class="text-sm font-medium text-black">Font Weight</label>
               <span id="expiryFontWeightValue"
                     class="text-xs bg-white px-2 py-1 rounded">600</span>
             </div>
             <input id="expiryFontWeightSlider" type="range"
                    min="100" max="900" step="100" value="600"
                    class="w-full" />
-          </div>
-
-          <!-- Font color -->
-          <div>
-            <label class="text-sm font-medium text-black block mb-1">
-              Text Color
-            </label>
-            <input id="expiryColorInput" type="color"
-                   value="#000000"
-                   class="w-full h-10 rounded cursor-pointer" />
           </div>
         </div>
       </div>
@@ -231,12 +219,9 @@
             <label class="inline-flex items-center cursor-pointer relative">
               <input id="blinkEnabledToggle" type="checkbox"
                      class="sr-only peer" checked />
-              <div class="w-10 h-5 bg-gray-300 rounded-full
-                          peer-checked:bg-green-500 transition-colors"></div>
-              <div class="w-4 h-4 bg-white rounded-full shadow
-                          absolute top-0.5 left-0.5
-                          transition-transform
-                          peer-checked:translate-x-5"></div>
+              <div class="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors"></div>
+              <div class="w-4 h-4 bg-white rounded-full shadow absolute left-0.5 top-0.5
+                          transition-transform peer-checked:translate-x-5"></div>
             </label>
           </div>
 
@@ -250,6 +235,10 @@
             <input id="blinkSpeedSlider" type="range"
                    min="100" max="2000" step="100" value="600"
                    class="w-full" />
+            <div class="flex justify-between text-[11px] text-gray-600 mt-1">
+              <span>Fast</span>
+              <span>Slow</span>
+            </div>
           </div>
         </div>
       </div>
@@ -265,10 +254,21 @@
          class="absolute inset-0 bg-no-repeat bg-center bg-contain"
          style="background-color:#1797D0;"></div>
 
-    <!-- Settings Icon (INVISIBLE but clickable) -->
+    <!-- Invisible Settings Hotspot (still clickable) -->
     <button id="openSettingsBtn"
+      aria-label="Open settings"
       class="absolute top-4 right-4 z-50"
-      style="background:transparent; color:transparent; border:none; box-shadow:none; padding:20px; cursor:pointer;">
+      style="
+        background:transparent;
+        border:none;
+        width:40px;
+        height:40px;
+        padding:0;
+        margin:0;
+        color:transparent;
+        box-shadow:none;
+        border-radius:0;
+      ">
       ⚙️
     </button>
 
@@ -307,7 +307,12 @@
       <!-- EXPIRY TEXT -->
       <h3 id="expiryText"
           class="absolute w-full text-center"
-          style="top:575px; color:black; font-size:30px; font-weight:600;">
+          style="
+            top:727px;
+            color:black;
+            font-size:21px;
+            font-weight:600;
+          ">
         Expires in 60:00
       </h3>
 
@@ -340,10 +345,9 @@ let blinkSpeed = 600;
 let blinkIntervalId = null;
 let barsVisible = true;
 
-let expiryTop = 575;
-let expiryFontSize = 30;
+let expiryTop = 727;
+let expiryFontSize = 21;
 let expiryFontWeight = 600;
-let expiryColor = "#000000";
 
 /* ——— ELEMENTS ——— */
 const openSettingsBtn = document.getElementById("openSettingsBtn");
@@ -379,29 +383,25 @@ const barsLeftValue = document.getElementById("barsLeftValue");
 const barsWidthValue = document.getElementById("barsWidthValue");
 const barsHeightValue = document.getElementById("barsHeightValue");
 
+const qrBgColorInput = document.getElementById("qrBgColorInput");
+const bar1ColorInput = document.getElementById("bar1ColorInput");
+const bar2ColorInput = document.getElementById("bar2ColorInput");
+const bar3ColorInput = document.getElementById("bar3ColorInput");
+
 const bgUpload = document.getElementById("bgUpload");
 const bgImageContainer = document.getElementById("bgImageContainer");
 
 const expiryText = document.getElementById("expiryText");
 const expiryTopSlider = document.getElementById("expiryTopSlider");
 const expiryTopValue = document.getElementById("expiryTopValue");
-
 const expiryFontSizeSlider = document.getElementById("expiryFontSizeSlider");
 const expiryFontSizeValue = document.getElementById("expiryFontSizeValue");
-
 const expiryFontWeightSlider = document.getElementById("expiryFontWeightSlider");
 const expiryFontWeightValue = document.getElementById("expiryFontWeightValue");
-
-const expiryColorInput = document.getElementById("expiryColorInput");
 
 const blinkEnabledToggle = document.getElementById("blinkEnabledToggle");
 const blinkSpeedSlider = document.getElementById("blinkSpeedSlider");
 const blinkSpeedValue = document.getElementById("blinkSpeedValue");
-
-const qrBgColorInput = document.getElementById("qrBgColorInput");
-const bar1ColorInput = document.getElementById("bar1ColorInput");
-const bar2ColorInput = document.getElementById("bar2ColorInput");
-const bar3ColorInput = document.getElementById("bar3ColorInput");
 
 /* ——— SETTINGS PANEL OPEN/CLOSE ——— */
 openSettingsBtn.onclick = () => {
@@ -454,11 +454,10 @@ function updateExpiryStyle() {
   expiryText.style.top = expiryTop + "px";
   expiryText.style.fontSize = expiryFontSize + "px";
   expiryText.style.fontWeight = expiryFontWeight.toString();
-  expiryText.style.color = expiryColor;
 
   expiryTopValue.textContent = expiryTop + "px";
   expiryFontSizeValue.textContent = expiryFontSize + "px";
-  expiryFontWeightValue.textContent = expiryFontWeight;
+  expiryFontWeightValue.textContent = expiryFontWeight.toString();
 }
 
 /* ——— BLINK LOGIC ——— */
@@ -517,11 +516,6 @@ expiryFontWeightSlider.oninput = e => {
   updateExpiryStyle();
 };
 
-expiryColorInput.oninput = e => {
-  expiryColor = e.target.value;
-  updateExpiryStyle();
-};
-
 blinkEnabledToggle.onchange = e => {
   blinkEnabled = e.target.checked;
   startBlinking();
@@ -531,18 +525,6 @@ blinkSpeedSlider.oninput = e => {
   blinkSpeed = +e.target.value;
   blinkSpeedValue.textContent = blinkSpeed + " ms";
   if (blinkEnabled) startBlinking();
-};
-
-bgUpload.onchange = e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    bgImage = ev.target.result;
-    bgImageContainer.style.backgroundImage = `url(${bgImage})`;
-    bgImageContainer.style.backgroundColor = "transparent";
-  };
-  reader.readAsDataURL(file);
 };
 
 qrBgColorInput.oninput = e => {
@@ -560,6 +542,18 @@ bar2ColorInput.oninput = e => {
 bar3ColorInput.oninput = e => {
   bar3Color = e.target.value;
   updateBars();
+};
+
+bgUpload.onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    bgImage = ev.target.result;
+    bgImageContainer.style.backgroundImage = `url(${bgImage})`;
+    bgImageContainer.style.backgroundColor = "transparent";
+  };
+  reader.readAsDataURL(file);
 };
 
 /* ——— INITIALIZE ——— */
