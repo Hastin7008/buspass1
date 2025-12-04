@@ -3,34 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <title>TicketUI – Pure HTML + JS</title>
-  <!-- Tailwind CDN for same styling as your React version -->
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
+
 <body class="w-full h-screen flex bg-gray-900">
 
   <!-- SETTINGS PANEL -->
   <div id="settingsPanel" class="w-96 bg-white overflow-y-auto flex flex-col flex-shrink-0 shadow-xl">
-    <div class="p-4 border-b flex justify-between items-center flex-shrink-0 sticky top-0 bg-white z-10">
+    <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
       <h2 class="font-bold text-xl">Settings</h2>
-      <button
-        id="closeSettingsBtn"
-        class="p-1 hover:bg-gray-200 rounded transition"
-      >
-        ✕
-      </button>
+      <button id="closeSettingsBtn" class="p-1 hover:bg-gray-200 rounded">✕</button>
     </div>
 
     <div class="p-4 overflow-y-auto flex-1">
+
       <!-- Background Upload -->
       <div class="bg-yellow-100 p-4 rounded-lg mb-4 border-2 border-yellow-400">
         <h3 class="font-bold mb-2">📁 Background Image</h3>
-        <input
-          id="bgUpload"
-          type="file"
-          accept="image/*"
-          class="w-full text-sm bg-white p-2 rounded border"
-        />
+        <input id="bgUpload" type="file" accept="image/*" class="w-full text-sm bg-white p-2 rounded border" />
       </div>
 
       <!-- Colors -->
@@ -39,315 +30,187 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="text-xs font-medium block mb-1">Ring Border</label>
-            <input
-              id="qrBgColorInput"
-              type="color"
-              value="#9CA3AF"
-              class="w-full h-10 rounded cursor-pointer"
-            />
+            <input id="qrBgColorInput" type="color" value="#9CA3AF" class="w-full h-10 rounded cursor-pointer" />
           </div>
           <div>
             <label class="text-xs font-medium block mb-1">Bar 1</label>
-            <input
-              id="bar1ColorInput"
-              type="color"
-              value="#22C55E"
-              class="w-full h-10 rounded cursor-pointer"
-            />
+            <input id="bar1ColorInput" type="color" value="#22C55E" class="w-full h-10 rounded cursor-pointer" />
           </div>
           <div>
             <label class="text-xs font-medium block mb-1">Bar 2</label>
-            <input
-              id="bar2ColorInput"
-              type="color"
-              value="#EF4444"
-              class="w-full h-10 rounded cursor-pointer"
-            />
+            <input id="bar2ColorInput" type="color" value="#EF4444" class="w-full h-10 rounded cursor-pointer" />
           </div>
           <div>
             <label class="text-xs font-medium block mb-1">Bar 3</label>
-            <input
-              id="bar3ColorInput"
-              type="color"
-              value="#22C55E"
-              class="w-full h-10 rounded cursor-pointer"
-            />
+            <input id="bar3ColorInput" type="color" value="#22C55E" class="w-full h-10 rounded cursor-pointer" />
           </div>
         </div>
       </div>
 
-      <!-- Ring Controls -->
+      <!-- RING CONTROLS -->
       <div class="bg-blue-100 p-4 rounded-lg mb-4">
         <h3 class="font-bold mb-3">⭕ Ring</h3>
 
         <div class="space-y-3">
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Position Y</label>
-              <span id="qrTopValue" class="text-xs bg-white px-2 py-1 rounded">-179px</span>
+              <span id="qrTopValue" class="text-xs bg-white px-2 py-1 rounded">82px</span>
             </div>
-            <input
-              id="qrTopSlider"
-              type="range"
-              min="-500"
-              max="700"
-              value="-179"
-              class="w-full"
-            />
+            <input id="qrTopSlider" type="range" min="-500" max="700" value="82" class="w-full" />
           </div>
 
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Position X</label>
-              <span id="qrLeftValue" class="text-xs bg-white px-2 py-1 rounded">95%</span>
+              <span id="qrLeftValue" class="text-xs bg-white px-2 py-1 rounded">50%</span>
             </div>
-            <input
-              id="qrLeftSlider"
-              type="range"
-              min="0"
-              max="100"
-              value="95"
-              class="w-full"
-            />
+            <input id="qrLeftSlider" type="range" min="0" max="100" value="50" class="w-full" />
           </div>
 
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Size</label>
-              <span id="qrSizeValue" class="text-xs bg-white px-2 py-1 rounded">90px</span>
+              <span id="qrSizeValue" class="text-xs bg-white px-2 py-1 rounded">169px</span>
             </div>
-            <input
-              id="qrSizeSlider"
-              type="range"
-              min="50"
-              max="400"
-              value="90"
-              class="w-full"
-            />
+            <input id="qrSizeSlider" type="range" min="50" max="400" value="169" class="w-full" />
           </div>
 
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Border Width</label>
-              <span id="qrBorderWidthValue" class="text-xs bg-white px-2 py-1 rounded">6px</span>
+              <span id="qrBorderWidthValue" class="text-xs bg-white px-2 py-1 rounded">13px</span>
             </div>
-            <input
-              id="qrBorderWidthSlider"
-              type="range"
-              min="1"
-              max="30"
-              value="6"
-              class="w-full"
-            />
+            <input id="qrBorderWidthSlider" type="range" min="1" max="30" value="13" class="w-full" />
           </div>
 
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Corner Radius</label>
-              <span id="qrBorderRadiusValue" class="text-xs bg-white px-2 py-1 rounded">7px</span>
+              <span id="qrBorderRadiusValue" class="text-xs bg-white px-2 py-1 rounded">16px</span>
             </div>
-            <input
-              id="qrBorderRadiusSlider"
-              type="range"
-              min="0"
-              max="100"
-              value="7"
-              class="w-full"
-            />
+            <input id="qrBorderRadiusSlider" type="range" min="0" max="100" value="16" class="w-full" />
           </div>
         </div>
       </div>
 
-      <!-- Bars Controls -->
+      <!-- COLOR BAR CONTROLS -->
       <div class="bg-green-100 p-4 rounded-lg mb-4">
         <h3 class="font-bold mb-3">▬ Color Bars</h3>
 
         <div class="space-y-3">
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Position Y</label>
-              <span id="barsTopValue" class="text-xs bg-white px-2 py-1 rounded">300px</span>
+              <span id="barsTopValue" class="text-xs bg-white px-2 py-1 rounded">674px</span>
             </div>
-            <input
-              id="barsTopSlider"
-              type="range"
-              min="0"
-              max="700"
-              value="300"
-              class="w-full"
-            />
+            <input id="barsTopSlider" type="range" min="0" max="700" value="674" class="w-full" />
           </div>
 
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Position X</label>
               <span id="barsLeftValue" class="text-xs bg-white px-2 py-1 rounded">50%</span>
             </div>
-            <input
-              id="barsLeftSlider"
-              type="range"
-              min="0"
-              max="100"
-              value="50"
-              class="w-full"
-            />
+            <input id="barsLeftSlider" type="range" min="0" max="100" value="50" class="w-full" />
           </div>
 
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Width</label>
-              <span id="barsWidthValue" class="text-xs bg-white px-2 py-1 rounded">300px</span>
+              <span id="barsWidthValue" class="text-xs bg-white px-2 py-1 rounded">278px</span>
             </div>
-            <input
-              id="barsWidthSlider"
-              type="range"
-              min="100"
-              max="500"
-              value="300"
-              class="w-full"
-            />
+            <input id="barsWidthSlider" type="range" min="100" max="500" value="278" class="w-full" />
           </div>
 
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Height</label>
-              <span id="barsHeightValue" class="text-xs bg-white px-2 py-1 rounded">22px</span>
+              <span id="barsHeightValue" class="text-xs bg-white px-2 py-1 rounded">20px</span>
             </div>
-            <input
-              id="barsHeightSlider"
-              type="range"
-              min="10"
-              max="100"
-              value="22"
-              class="w-full"
-            />
+            <input id="barsHeightSlider" type="range" min="10" max="100" value="20" class="w-full" />
           </div>
         </div>
       </div>
 
-      <!-- Timer Elements -->
+      <!-- TIMER CONTROLS -->
       <div class="bg-purple-100 p-4 rounded-lg mb-4">
         <h3 class="font-bold mb-3">⏱️ Timer Elements</h3>
 
         <div class="space-y-3">
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Progress Bar Y</label>
               <span id="progressTopValue" class="text-xs bg-white px-2 py-1 rounded">540px</span>
             </div>
-            <input
-              id="progressTopSlider"
-              type="range"
-              min="0"
-              max="700"
-              value="540"
-              class="w-full"
-            />
+            <input id="progressTopSlider" type="range" min="0" max="700" value="540" class="w-full" />
           </div>
 
           <div>
-            <div class="flex justify-between mb-1">
+            <div class="flex justify-between">
               <label class="text-sm font-medium">Expiry Text Y</label>
               <span id="expiryTopValue" class="text-xs bg-white px-2 py-1 rounded">575px</span>
             </div>
-            <input
-              id="expiryTopSlider"
-              type="range"
-              min="0"
-              max="700"
-              value="575"
-              class="w-full"
-            />
+            <input id="expiryTopSlider" type="range" min="0" max="700" value="575" class="w-full" />
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
-  <!-- PREVIEW AREA -->
+  <!-- PREVIEW PANEL -->
   <div class="flex-1 flex items-center justify-center overflow-hidden relative">
-    <!-- Background Image -->
-    <div
-      id="bgImageContainer"
-      class="absolute inset-0 bg-no-repeat bg-center bg-contain"
-    ></div>
 
-    <!-- Settings Toggle Button -->
-    <button
-      id="openSettingsBtn"
-      class="absolute top-4 right-4 bg-white p-3 rounded-full shadow-lg z-50 hidden"
-    >
-      ⚙️
-    </button>
+    <div id="bgImageContainer" class="absolute inset-0 bg-no-repeat bg-center bg-contain"></div>
 
-    <!-- Phone Layout -->
-    <div class="relative w-[375px] h-[812px] pointer-events-auto bg-transparent">
-      <!-- Ring -->
-      <div
-        id="qrRing"
-        class="absolute"
+    <button id="openSettingsBtn" class="absolute top-4 right-4 bg-white p-3 rounded-full shadow-lg z-50 hidden">⚙️</button>
+
+    <div class="relative w-[375px] h-[812px] pointer-events-auto">
+
+      <div id="qrRing" class="absolute"
         style="
-          top: -179px;
-          left: 95%;
-          transform: translateX(-50%);
-          width: 90px;
-          height: 90px;
-          border-width: 6px;
-          border-style: solid;
-          border-color: #9CA3AF;
-          border-radius: 7px;
-        "
-      ></div>
-
-      <!-- Color Bars -->
-      <div
-        id="colorBars"
-        class="absolute flex"
-        style="
-          top: 300px;
+          top: 82px;
           left: 50%;
           transform: translateX(-50%);
-          width: 300px;
-          height: 22px;
-        "
-      >
-        <div id="bar1" style="flex: 1; background-color: #22C55E;"></div>
-        <div id="bar2" style="flex: 1; background-color: #EF4444;"></div>
-        <div id="bar3" style="flex: 1; background-color: #22C55E;"></div>
+          width: 169px;
+          height: 169px;
+          border-width: 13px;
+          border-style: solid;
+          border-color: #9CA3AF;
+          border-radius: 16px;
+        ">
       </div>
 
-      <!-- Progress Bar -->
-      <div
-        id="progressContainer"
-        class="absolute w-[300px] bg-gray-200 h-[6px] rounded-full overflow-hidden"
-        style="top: 540px; left: 50%; transform: translateX(-50%);"
-      >
-        <div
-          id="progressFill"
-          class="h-full bg-blue-500"
-          style="width: 100%;"
-        ></div>
+      <div id="colorBars" class="absolute flex"
+        style="
+          top: 674px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 278px;
+          height: 20px;
+        ">
+        <div id="bar1" style="flex:1;background:#22C55E;"></div>
+        <div id="bar2" style="flex:1;background:#EF4444;"></div>
+        <div id="bar3" style="flex:1;background:#22C55E;"></div>
       </div>
 
-      <!-- Expiry Text -->
-      <h3
-        id="expiryText"
-        class="absolute text-center w-full font-bold text-3xl"
-        style="top: 575px; color: black;"
-      >
+      <div id="progressContainer" class="absolute w-[300px] bg-gray-200 h-[6px] rounded-full overflow-hidden"
+        style="top:540px; left:50%; transform:translateX(-50%);">
+        <div id="progressFill" class="h-full bg-blue-500" style="width:100%;"></div>
+      </div>
+
+      <h3 id="expiryText" class="absolute w-full text-center font-bold text-3xl" style="top:575px;color:black;">
         Expires in 60:00
       </h3>
+
     </div>
   </div>
 
   <script>
+    /* ——— STATE ——— */
     let bgImage = null;
-    let showSettings = true;
-
-    let qrBgColor = '#9CA3AF';
-    let bar1Color = '#22C55E';
-    let bar2Color = '#EF4444';
-    let bar3Color = '#22C55E';
+    let timeLeft = 3600;
 
     let qrTop = 82;
     let qrLeft = 50;
@@ -359,30 +222,122 @@
     let barsLeft = 50;
     let barsWidth = 278;
     let barsHeight = 20;
+    let qrBgColor = "#9CA3AF";
+    let bar1Color = "#22C55E";
+    let bar2Color = "#EF4444";
+    let bar3Color = "#22C55E";
 
+    /* ——— ELEMENTS ——— */
+    const qrRing = document.getElementById("qrRing");
+    const colorBars = document.getElementById("colorBars");
+    const bar1 = document.getElementById("bar1");
+    const bar2 = document.getElementById("bar2");
+    const bar3 = document.getElementById("bar3");
 
-    let progressTop = 540;
-    let expiryTop = 575;
+    const qrTopSlider = document.getElementById("qrTopSlider");
+    const qrLeftSlider = document.getElementById("qrLeftSlider");
+    const qrSizeSlider = document.getElementById("qrSizeSlider");
+    const qrBorderWidthSlider = document.getElementById("qrBorderWidthSlider");
+    const qrBorderRadiusSlider = document.getElementById("qrBorderRadiusSlider");
 
-    let timeLeft = 3600;
+    const barsTopSlider = document.getElementById("barsTopSlider");
+    const barsLeftSlider = document.getElementById("barsLeftSlider");
+    const barsWidthSlider = document.getElementById("barsWidthSlider");
+    const barsHeightSlider = document.getElementById("barsHeightSlider");
 
-    const settingsPanel = document.getElementById('settingsPanel');
-    const openSettingsBtn = document.getElementById('openSettingsBtn');
-    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const qrTopValue = document.getElementById("qrTopValue");
+    const qrLeftValue = document.getElementById("qrLeftValue");
+    const qrSizeValue = document.getElementById("qrSizeValue");
+    const qrBorderWidthValue = document.getElementById("qrBorderWidthValue");
+    const qrBorderRadiusValue = document.getElementById("qrBorderRadiusValue");
 
-    const bgUpload = document.getElementById('bgUpload');
-    const bgImageContainer = document.getElementById('bgImageContainer');
+    const barsTopValue = document.getElementById("barsTopValue");
+    const barsLeftValue = document.getElementById("barsLeftValue");
+    const barsWidthValue = document.getElementById("barsWidthValue");
+    const barsHeightValue = document.getElementById("barsHeightValue");
 
-    const qrRing = document.getElementById('qrRing');
-    const colorBars = document.getElementById('colorBars');
-    const bar1 = document.getElementById('bar1');
-    const bar2 = document.getElementById('bar2');
-    const bar3 = document.getElementById('bar3');
+    const bgUpload = document.getElementById("bgUpload");
+    const bgImageContainer = document.getElementById("bgImageContainer");
 
-    const progressContainer = document.getElementById('progressContainer');
-    const progressFill = document.getElementById('progressFill');
-    const expiryText = document.getElementById('expiryText');
+    const progressFill = document.getElementById("progressFill");
+    const expiryText = document.getElementById("expiryText");
 
-    const qrBgColorInput = document.getElementById('qrBgColorInput');
-    const bar1ColorInput = document.getElementById('bar1ColorInput');
-    const bar2ColorInput = document.getElementById('bar2
+    /* ——— UPDATE FUNCTIONS ——— */
+    function updateRing() {
+      qrRing.style.top = qrTop + "px";
+      qrRing.style.left = qrLeft + "%";
+      qrRing.style.width = qrSize + "px";
+      qrRing.style.height = qrSize + "px";
+      qrRing.style.borderWidth = qrBorderWidth + "px";
+      qrRing.style.borderRadius = qrBorderRadius + "px";
+      qrRing.style.borderColor = qrBgColor;
+
+      qrTopValue.textContent = qrTop + "px";
+      qrLeftValue.textContent = qrLeft + "%";
+      qrSizeValue.textContent = qrSize + "px";
+      qrBorderWidthValue.textContent = qrBorderWidth + "px";
+      qrBorderRadiusValue.textContent = qrBorderRadius + "px";
+    }
+
+    function updateBars() {
+      colorBars.style.top = barsTop + "px";
+      colorBars.style.left = barsLeft + "%";
+      colorBars.style.width = barsWidth + "px";
+      colorBars.style.height = barsHeight + "px";
+
+      bar1.style.backgroundColor = bar1Color;
+      bar2.style.backgroundColor = bar2Color;
+      bar3.style.backgroundColor = bar3Color;
+
+      barsTopValue.textContent = barsTop + "px";
+      barsLeftValue.textContent = barsLeft + "%";
+      barsWidthValue.textContent = barsWidth + "px";
+      barsHeightValue.textContent = barsHeight + "px";
+    }
+
+    function updateTime() {
+      const percent = (timeLeft / 3600) * 100;
+      progressFill.style.width = percent + "%";
+      const mins = Math.floor(timeLeft / 60);
+      const secs = (timeLeft % 60).toString().padStart(2, "0");
+      expiryText.textContent = `Expires in ${mins}:${secs}`;
+    }
+
+    /* ——— EVENT LISTENERS ——— */
+    qrTopSlider.oninput = e => (qrTop = +e.target.value, updateRing());
+    qrLeftSlider.oninput = e => (qrLeft = +e.target.value, updateRing());
+    qrSizeSlider.oninput = e => (qrSize = +e.target.value, updateRing());
+    qrBorderWidthSlider.oninput = e => (qrBorderWidth = +e.target.value, updateRing());
+    qrBorderRadiusSlider.oninput = e => (qrBorderRadius = +e.target.value, updateRing());
+
+    barsTopSlider.oninput = e => (barsTop = +e.target.value, updateBars());
+    barsLeftSlider.oninput = e => (barsLeft = +e.target.value, updateBars());
+    barsWidthSlider.oninput = e => (barsWidth = +e.target.value, updateBars());
+    barsHeightSlider.oninput = e => (barsHeight = +e.target.value, updateBars());
+
+    bgUpload.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        bgImage = ev.target.result;
+        bgImageContainer.style.backgroundImage = `url(${bgImage})`;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    /* ——— INITIALIZE ——— */
+    updateRing();
+    updateBars();
+    updateTime();
+
+    setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        updateTime();
+      }
+    }, 1000);
+  </script>
+
+</body>
+</html>
