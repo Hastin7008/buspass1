@@ -11,11 +11,12 @@
 
   <!-- SETTINGS PANEL -->
   <div id="settingsPanel"
-       class="w-96 bg-white overflow-y-auto flex flex-col flex-shrink-0 shadow-xl hidden">
+       class="w-96 bg-white overflow-y-auto flex flex-col flex-shrink-0 shadow-xl">
     
     <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
       <h2 class="font-bold text-xl">Settings</h2>
 
+      <!-- Close Button (blue) -->
       <button id="closeSettingsBtn"
         class="p-2 rounded-full"
         style="color:#1797D0; font-size:20px; font-weight:bold;">
@@ -32,7 +33,7 @@
                type="file"
                accept="image/*"
                class="w-full text-sm bg-white p-2 rounded border" />
-        <p class="text-xs text-gray-600 mt-1">Image stays saved permanently</p>
+        <p class="text-xs text-gray-600 mt-1">Image stays saved (this session)</p>
       </div>
 
       <!-- Color Pickers -->
@@ -70,7 +71,8 @@
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Position Y</label>
-              <span id="qrTopValue" class="text-xs bg-white px-2 py-1 rounded">82px</span>
+              <span id="qrTopValue"
+                    class="text-xs bg-white px-2 py-1 rounded">82px</span>
             </div>
             <input id="qrTopSlider" type="range" min="-500" max="700"
                    value="82" class="w-full" />
@@ -79,7 +81,8 @@
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Position X</label>
-              <span id="qrLeftValue" class="text-xs bg-white px-2 py-1 rounded">50%</span>
+              <span id="qrLeftValue"
+                    class="text-xs bg-white px-2 py-1 rounded">50%</span>
             </div>
             <input id="qrLeftSlider" type="range" min="0" max="100"
                    value="50" class="w-full" />
@@ -88,7 +91,8 @@
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Size</label>
-              <span id="qrSizeValue" class="text-xs bg-white px-2 py-1 rounded">169px</span>
+              <span id="qrSizeValue"
+                    class="text-xs bg-white px-2 py-1 rounded">169px</span>
             </div>
             <input id="qrSizeSlider" type="range" min="120" max="450"
                    value="169" class="w-full" />
@@ -97,7 +101,8 @@
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Border Width</label>
-              <span id="qrBorderWidthValue" class="text-xs bg-white px-2 py-1 rounded">13px</span>
+              <span id="qrBorderWidthValue"
+                    class="text-xs bg-white px-2 py-1 rounded">13px</span>
             </div>
             <input id="qrBorderWidthSlider" type="range" min="1" max="40"
                    value="13" class="w-full" />
@@ -106,7 +111,8 @@
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Corner Radius</label>
-              <span id="qrBorderRadiusValue" class="text-xs bg-white px-2 py-1 rounded">16px</span>
+              <span id="qrBorderRadiusValue"
+                    class="text-xs bg-white px-2 py-1 rounded">16px</span>
             </div>
             <input id="qrBorderRadiusSlider" type="range" min="0" max="80"
                    value="16" class="w-full" />
@@ -122,7 +128,8 @@
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Position Y</label>
-              <span id="barsTopValue" class="text-xs bg-white px-2 py-1 rounded">674px</span>
+              <span id="barsTopValue"
+                    class="text-xs bg-white px-2 py-1 rounded">674px</span>
             </div>
             <input id="barsTopSlider" type="range" min="0" max="900"
                    value="674" class="w-full" />
@@ -131,7 +138,8 @@
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Position X</label>
-              <span id="barsLeftValue" class="text-xs bg-white px-2 py-1 rounded">50%</span>
+              <span id="barsLeftValue"
+                    class="text-xs bg-white px-2 py-1 rounded">50%</span>
             </div>
             <input id="barsLeftSlider" type="range" min="0" max="100"
                    value="50" class="w-full" />
@@ -140,7 +148,8 @@
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Width</label>
-              <span id="barsWidthValue" class="text-xs bg-white px-2 py-1 rounded">278px</span>
+              <span id="barsWidthValue"
+                    class="text-xs bg-white px-2 py-1 rounded">278px</span>
             </div>
             <input id="barsWidthSlider" type="range" min="100" max="600"
                    value="278" class="w-full" />
@@ -149,7 +158,8 @@
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Height</label>
-              <span id="barsHeightValue" class="text-xs bg-white px-2 py-1 rounded">20px</span>
+              <span id="barsHeightValue"
+                    class="text-xs bg-white px-2 py-1 rounded">20px</span>
             </div>
             <input id="barsHeightSlider" type="range" min="10" max="150"
                    value="20" class="w-full" />
@@ -162,37 +172,85 @@
         <h3 class="font-bold mb-3 text-black">⏱️ Expiry Text Controls</h3>
 
         <div class="space-y-3">
-
+          <!-- Y position -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Position Y</label>
-              <span id="expiryTopValue" class="text-xs bg-white px-2 py-1 rounded">575px</span>
+              <span id="expiryTopValue"
+                    class="text-xs bg-white px-2 py-1 rounded">575px</span>
             </div>
-            <input id="expiryTopSlider" type="range" min="0" max="900" value="575" class="w-full" />
+            <input id="expiryTopSlider" type="range" min="0" max="900"
+                   value="575" class="w-full" />
           </div>
 
+          <!-- Font size -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Font Size</label>
-              <span id="expiryFontSizeValue" class="text-xs bg-white px-2 py-1 rounded">32px</span>
+              <span id="expiryFontSizeValue"
+                    class="text-xs bg-white px-2 py-1 rounded">30px</span>
             </div>
-            <input id="expiryFontSizeSlider" type="range" min="10" max="80" value="32" class="w-full" />
+            <input id="expiryFontSizeSlider" type="range"
+                   min="16" max="60" value="30" class="w-full" />
           </div>
 
+          <!-- Font weight -->
           <div>
-            <label class="text-sm font-medium text-black">Font Color</label>
-            <input id="expiryFontColorInput" type="color" value="#000000" class="w-20 h-10 rounded cursor-pointer" />
+            <div class="flex justify-between">
+              <label class="text-sm font-medium text-black">
+                Font Weight (100 → 900)
+              </label>
+              <span id="expiryFontWeightValue"
+                    class="text-xs bg-white px-2 py-1 rounded">600</span>
+            </div>
+            <input id="expiryFontWeightSlider" type="range"
+                   min="100" max="900" step="100" value="600"
+                   class="w-full" />
           </div>
 
+          <!-- Font color -->
+          <div>
+            <label class="text-sm font-medium text-black block mb-1">
+              Text Color
+            </label>
+            <input id="expiryColorInput" type="color"
+                   value="#000000"
+                   class="w-full h-10 rounded cursor-pointer" />
+          </div>
+        </div>
+      </div>
+
+      <!-- BLINK CONTROLS -->
+      <div class="bg-pink-100 p-4 rounded-lg mb-4">
+        <h3 class="font-bold mb-3 text-black">✨ Blink Controls</h3>
+
+        <div class="space-y-3">
+          <!-- Toggle -->
           <div class="flex items-center justify-between">
-            <label class="text-sm font-medium text-black">Bold Text</label>
-            <label class="inline-flex items-center cursor-pointer">
-              <input id="expiryBoldToggle" type="checkbox" class="sr-only peer" checked />
-              <div class="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-green-500 transition"></div>
-              <div class="absolute w-4 h-4 bg-white rounded-full shadow left-0.5 top-0.5 transition-transform peer-checked:translate-x-5"></div>
+            <label class="text-sm font-medium text-black">Blink Bars</label>
+            <label class="inline-flex items-center cursor-pointer relative">
+              <input id="blinkEnabledToggle" type="checkbox"
+                     class="sr-only peer" checked />
+              <div class="w-10 h-5 bg-gray-300 rounded-full
+                          peer-checked:bg-green-500 transition-colors"></div>
+              <div class="w-4 h-4 bg-white rounded-full shadow
+                          absolute top-0.5 left-0.5
+                          transition-transform
+                          peer-checked:translate-x-5"></div>
             </label>
           </div>
 
+          <!-- Speed -->
+          <div>
+            <div class="flex justify-between mb-1">
+              <label class="text-sm font-medium text-black">Blink Speed</label>
+              <span id="blinkSpeedValue"
+                    class="text-xs bg-white px-2 py-1 rounded">600 ms</span>
+            </div>
+            <input id="blinkSpeedSlider" type="range"
+                   min="100" max="2000" step="100" value="600"
+                   class="w-full" />
+          </div>
         </div>
       </div>
 
@@ -202,28 +260,22 @@
   <!-- PREVIEW PANEL -->
   <div class="flex-1 flex items-center justify-center overflow-hidden relative">
 
+    <!-- Background Image -->
     <div id="bgImageContainer"
          class="absolute inset-0 bg-no-repeat bg-center bg-contain"
          style="background-color:#1797D0;"></div>
 
-    <!-- Invisible Settings Button -->
+    <!-- Settings Icon (INVISIBLE but clickable) -->
     <button id="openSettingsBtn"
       class="absolute top-4 right-4 z-50"
-      style="
-        width:60px;
-        height:60px;
-        opacity:0;
-        background:transparent;
-        border:none;
-        box-shadow:none;
-        padding:0;
-        margin:0;
-      ">
+      style="background:transparent; color:transparent; border:none; box-shadow:none; padding:20px; cursor:pointer;">
+      ⚙️
     </button>
 
-    <!-- PHONE -->
+    <!-- PHONE LAYOUT -->
     <div class="relative w-[375px] h-[812px] pointer-events-auto">
 
+      <!-- RING -->
       <div id="qrRing" class="absolute"
         style="
           top:82px;
@@ -238,6 +290,7 @@
         ">
       </div>
 
+      <!-- COLOR BARS -->
       <div id="colorBars" class="absolute flex"
         style="
           top:674px;
@@ -251,9 +304,10 @@
         <div id="bar3" style="flex:1;background:#22C55E;"></div>
       </div>
 
+      <!-- EXPIRY TEXT -->
       <h3 id="expiryText"
-          class="absolute w-full text-center font-bold"
-          style="top:575px; color:black; font-size:32px;">
+          class="absolute w-full text-center"
+          style="top:575px; color:black; font-size:30px; font-weight:600;">
         Expires in 60:00
       </h3>
 
@@ -261,43 +315,48 @@
   </div>
 
 <script>
-/* ==== STATE ==== */
+/* ——— STATE ——— */
+let bgImage = null;
 let timeLeft = 3600;
 
-let qrTop = 82, qrLeft = 50, qrSize = 169, qrBorderWidth = 13, qrBorderRadius = 16;
-let barsTop = 674, barsLeft = 50, barsWidth = 278, barsHeight = 20;
+let qrTop = 82;
+let qrLeft = 50;
+let qrSize = 169;
+let qrBorderWidth = 13;
+let qrBorderRadius = 16;
+
+let barsTop = 674;
+let barsLeft = 50;
+let barsWidth = 278;
+let barsHeight = 20;
 
 let qrBgColor = "#9CA3AF";
 let bar1Color = "#22C55E";
 let bar2Color = "#EF4444";
 let bar3Color = "#22C55E";
 
-let expiryFontSize = 32;
-let expiryFontColor = "#000000";
-let expiryBold = true;
-
 let blinkEnabled = true;
 let blinkSpeed = 600;
 let blinkIntervalId = null;
 let barsVisible = true;
 
-/* ==== ELEMENTS ==== */
+let expiryTop = 575;
+let expiryFontSize = 30;
+let expiryFontWeight = 600;
+let expiryColor = "#000000";
+
+/* ——— ELEMENTS ——— */
 const openSettingsBtn = document.getElementById("openSettingsBtn");
 const closeSettingsBtn = document.getElementById("closeSettingsBtn");
 const settingsPanel = document.getElementById("settingsPanel");
 
 const qrRing = document.getElementById("qrRing");
+const colorBars = document.getElementById("colorBars");
+
 const bar1 = document.getElementById("bar1");
 const bar2 = document.getElementById("bar2");
 const bar3 = document.getElementById("bar3");
 
-const colorBars = document.getElementById("colorBars");
-const bgUpload = document.getElementById("bgUpload");
-const bgImageContainer = document.getElementById("bgImageContainer");
-
-const expiryText = document.getElementById("expiryText");
-
-/* Sliders */
 const qrTopSlider = document.getElementById("qrTopSlider");
 const qrLeftSlider = document.getElementById("qrLeftSlider");
 const qrSizeSlider = document.getElementById("qrSizeSlider");
@@ -308,13 +367,6 @@ const barsTopSlider = document.getElementById("barsTopSlider");
 const barsLeftSlider = document.getElementById("barsLeftSlider");
 const barsWidthSlider = document.getElementById("barsWidthSlider");
 const barsHeightSlider = document.getElementById("barsHeightSlider");
-
-const expiryTopSlider = document.getElementById("expiryTopSlider");
-
-const expiryFontSizeSlider = document.getElementById("expiryFontSizeSlider");
-const expiryFontSizeValue = document.getElementById("expiryFontSizeValue");
-const expiryFontColorInput = document.getElementById("expiryFontColorInput");
-const expiryBoldToggle = document.getElementById("expiryBoldToggle");
 
 const qrTopValue = document.getElementById("qrTopValue");
 const qrLeftValue = document.getElementById("qrLeftValue");
@@ -327,11 +379,39 @@ const barsLeftValue = document.getElementById("barsLeftValue");
 const barsWidthValue = document.getElementById("barsWidthValue");
 const barsHeightValue = document.getElementById("barsHeightValue");
 
-/* ==== SETTINGS PANEL ==== */
-openSettingsBtn.onclick = () => settingsPanel.classList.remove("hidden");
-closeSettingsBtn.onclick = () => settingsPanel.classList.add("hidden");
+const bgUpload = document.getElementById("bgUpload");
+const bgImageContainer = document.getElementById("bgImageContainer");
 
-/* ==== UPDATE FUNCTIONS ==== */
+const expiryText = document.getElementById("expiryText");
+const expiryTopSlider = document.getElementById("expiryTopSlider");
+const expiryTopValue = document.getElementById("expiryTopValue");
+
+const expiryFontSizeSlider = document.getElementById("expiryFontSizeSlider");
+const expiryFontSizeValue = document.getElementById("expiryFontSizeValue");
+
+const expiryFontWeightSlider = document.getElementById("expiryFontWeightSlider");
+const expiryFontWeightValue = document.getElementById("expiryFontWeightValue");
+
+const expiryColorInput = document.getElementById("expiryColorInput");
+
+const blinkEnabledToggle = document.getElementById("blinkEnabledToggle");
+const blinkSpeedSlider = document.getElementById("blinkSpeedSlider");
+const blinkSpeedValue = document.getElementById("blinkSpeedValue");
+
+const qrBgColorInput = document.getElementById("qrBgColorInput");
+const bar1ColorInput = document.getElementById("bar1ColorInput");
+const bar2ColorInput = document.getElementById("bar2ColorInput");
+const bar3ColorInput = document.getElementById("bar3ColorInput");
+
+/* ——— SETTINGS PANEL OPEN/CLOSE ——— */
+openSettingsBtn.onclick = () => {
+  settingsPanel.style.display = "block";
+};
+closeSettingsBtn.onclick = () => {
+  settingsPanel.style.display = "none";
+};
+
+/* ——— UPDATE FUNCTIONS ——— */
 function updateRing() {
   qrRing.style.top = qrTop + "px";
   qrRing.style.left = qrLeft + "%";
@@ -371,20 +451,17 @@ function updateTime() {
 }
 
 function updateExpiryStyle() {
+  expiryText.style.top = expiryTop + "px";
   expiryText.style.fontSize = expiryFontSize + "px";
+  expiryText.style.fontWeight = expiryFontWeight.toString();
+  expiryText.style.color = expiryColor;
+
+  expiryTopValue.textContent = expiryTop + "px";
   expiryFontSizeValue.textContent = expiryFontSize + "px";
-
-  expiryText.style.color = expiryFontColor;
-
-  expiryText.style.fontWeight = expiryBold ? "900" : "400";
+  expiryFontWeightValue.textContent = expiryFontWeight;
 }
 
-function updateExpiryY() {
-  expiryText.style.top = expiryTopSlider.value + "px";
-  expiryTopValue.textContent = expiryTopSlider.value + "px";
-}
-
-/* ==== BLINK ==== */
+/* ——— BLINK LOGIC ——— */
 function applyBlinkState() {
   const opacity = barsVisible ? "1" : "0";
   bar1.style.opacity = opacity;
@@ -393,7 +470,10 @@ function applyBlinkState() {
 }
 
 function startBlinking() {
-  if (blinkIntervalId) clearInterval(blinkIntervalId);
+  if (blinkIntervalId) {
+    clearInterval(blinkIntervalId);
+    blinkIntervalId = null;
+  }
 
   if (!blinkEnabled) {
     barsVisible = true;
@@ -401,58 +481,92 @@ function startBlinking() {
     return;
   }
 
+  barsVisible = true;
+  applyBlinkState();
+
   blinkIntervalId = setInterval(() => {
     barsVisible = !barsVisible;
     applyBlinkState();
   }, blinkSpeed);
 }
 
-/* ==== EVENT LISTENERS ==== */
-qrTopSlider.oninput        = e => (qrTop = +e.target.value, updateRing());
-qrLeftSlider.oninput       = e => (qrLeft = +e.target.value, updateRing());
-qrSizeSlider.oninput       = e => (qrSize = +e.target.value, updateRing());
-qrBorderWidthSlider.oninput = e => (qrBorderWidth = +e.target.value, updateRing());
-qrBorderRadiusSlider.oninput = e => (qrBorderRadius = +e.target.value, updateRing());
+/* ——— EVENT LISTENERS ——— */
+qrTopSlider.oninput    = e => { qrTop = +e.target.value; updateRing(); };
+qrLeftSlider.oninput   = e => { qrLeft = +e.target.value; updateRing(); };
+qrSizeSlider.oninput   = e => { qrSize = +e.target.value; updateRing(); };
+qrBorderWidthSlider.oninput = e => { qrBorderWidth = +e.target.value; updateRing(); };
+qrBorderRadiusSlider.oninput = e => { qrBorderRadius = +e.target.value; updateRing(); };
 
-barsTopSlider.oninput      = e => (barsTop = +e.target.value, updateBars());
-barsLeftSlider.oninput     = e => (barsLeft = +e.target.value, updateBars());
-barsWidthSlider.oninput    = e => (barsWidth = +e.target.value, updateBars());
-barsHeightSlider.oninput   = e => (barsHeight = +e.target.value, updateBars());
+barsTopSlider.oninput  = e => { barsTop = +e.target.value; updateBars(); };
+barsLeftSlider.oninput = e => { barsLeft = +e.target.value; updateBars(); };
+barsWidthSlider.oninput= e => { barsWidth = +e.target.value; updateBars(); };
+barsHeightSlider.oninput= e => { barsHeight = +e.target.value; updateBars(); };
 
-expiryTopSlider.oninput = updateExpiryY;
+expiryTopSlider.oninput = e => {
+  expiryTop = +e.target.value;
+  updateExpiryStyle();
+};
 
 expiryFontSizeSlider.oninput = e => {
   expiryFontSize = +e.target.value;
   updateExpiryStyle();
 };
 
-expiryFontColorInput.oninput = e => {
-  expiryFontColor = e.target.value;
+expiryFontWeightSlider.oninput = e => {
+  expiryFontWeight = +e.target.value;
   updateExpiryStyle();
 };
 
-expiryBoldToggle.onchange = e => {
-  expiryBold = e.target.checked;
+expiryColorInput.oninput = e => {
+  expiryColor = e.target.value;
   updateExpiryStyle();
+};
+
+blinkEnabledToggle.onchange = e => {
+  blinkEnabled = e.target.checked;
+  startBlinking();
+};
+
+blinkSpeedSlider.oninput = e => {
+  blinkSpeed = +e.target.value;
+  blinkSpeedValue.textContent = blinkSpeed + " ms";
+  if (blinkEnabled) startBlinking();
 };
 
 bgUpload.onchange = e => {
   const file = e.target.files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = ev => {
-    bgImageContainer.style.backgroundImage = `url(${ev.target.result})`;
+    bgImage = ev.target.result;
+    bgImageContainer.style.backgroundImage = `url(${bgImage})`;
     bgImageContainer.style.backgroundColor = "transparent";
   };
   reader.readAsDataURL(file);
 };
 
-/* ==== INIT ==== */
+qrBgColorInput.oninput = e => {
+  qrBgColor = e.target.value;
+  updateRing();
+};
+bar1ColorInput.oninput = e => {
+  bar1Color = e.target.value;
+  updateBars();
+};
+bar2ColorInput.oninput = e => {
+  bar2Color = e.target.value;
+  updateBars();
+};
+bar3ColorInput.oninput = e => {
+  bar3Color = e.target.value;
+  updateBars();
+};
+
+/* ——— INITIALIZE ——— */
 updateRing();
 updateBars();
-updateExpiryY();
 updateExpiryStyle();
+updateTime();
 applyBlinkState();
 startBlinking();
 
