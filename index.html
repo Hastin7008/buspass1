@@ -21,6 +21,8 @@
     
     <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
       <h2 class="font-bold text-xl text-black">Settings</h2>
+
+      <!-- Close Button (blue X) -->
       <button id="closeSettingsBtn"
         class="p-2 rounded-full"
         style="color:#1797D0; font-size:20px; font-weight:bold;">
@@ -176,6 +178,7 @@
         <h3 class="font-bold mb-3 text-black">⏱️ Expiry Text Controls</h3>
 
         <div class="space-y-3">
+          <!-- Y Position -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Position Y</label>
@@ -186,6 +189,7 @@
                    value="727" class="w-full" />
           </div>
 
+          <!-- Font Size -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Font Size</label>
@@ -196,6 +200,7 @@
                    min="10" max="60" value="21" class="w-full" />
           </div>
 
+          <!-- Font Weight (numeric only) -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Font Weight</label>
@@ -214,6 +219,7 @@
         <h3 class="font-bold mb-3 text-black">🔢 Middle Number Controls</h3>
 
         <div class="space-y-3">
+          <!-- Position Y -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Position Y</label>
@@ -224,6 +230,7 @@
                    value="309" class="w-full" />
           </div>
 
+          <!-- Position X -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Position X</label>
@@ -234,6 +241,7 @@
                    value="50" class="w-full" />
           </div>
 
+          <!-- Font Size -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Font Size</label>
@@ -244,6 +252,7 @@
                    min="20" max="150" value="56" class="w-full" />
           </div>
 
+          <!-- Font Weight -->
           <div>
             <div class="flex justify-between">
               <label class="text-sm font-medium text-black">Font Weight</label>
@@ -266,6 +275,7 @@
         <h3 class="font-bold mb-3 text-black">✨ Blink Controls</h3>
 
         <div class="space-y-3">
+          <!-- Toggle -->
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-black">Blink Bars</label>
             <label class="inline-flex items-center cursor-pointer relative">
@@ -277,6 +287,7 @@
             </label>
           </div>
 
+          <!-- Speed -->
           <div>
             <div class="flex justify-between mb-1">
               <label class="text-sm font-medium text-black">Blink Speed</label>
@@ -300,10 +311,12 @@
   <!-- PREVIEW PANEL -->
   <div class="flex-1 flex items-center justify-center overflow-hidden relative">
 
+    <!-- Background Image -->
     <div id="bgImageContainer"
          class="absolute inset-0 bg-no-repeat bg-center bg-contain"
          style="background-color:#1797D0;"></div>
 
+    <!-- Invisible Settings Hotspot (still clickable) -->
     <button id="openSettingsBtn"
       aria-label="Open settings"
       class="absolute top-4 right-4 z-50"
@@ -321,9 +334,10 @@
       ⚙️
     </button>
 
+    <!-- PHONE LAYOUT -->
     <div class="relative w-[375px] h-[812px] pointer-events-auto">
 
-      <!-- QR RING -->
+      <!-- RING -->
       <div id="qrRing" class="absolute"
         style="
           top:82px;
@@ -364,7 +378,7 @@
         Expires in 60:00
       </h3>
 
-      <!-- MIDDLE NUMBER -->
+      <!-- MIDDLE NUMBER (CLICKABLE) -->
       <h1 id="middleNumber"
           class="absolute w-full text-center select-none"
           style="
@@ -383,6 +397,7 @@
   </div>
 
 <script>
+/* ——— STATE ——— */
 let bgImage = null;
 let timeLeft = 3600;
 
@@ -417,6 +432,7 @@ let middleNumFontSize = 56;
 let middleNumFontWeight = 800;
 let middleNumValue = 2;
 
+/* ——— ELEMENTS ——— */
 const openSettingsBtn = document.getElementById("openSettingsBtn");
 const closeSettingsBtn = document.getElementById("closeSettingsBtn");
 const settingsPanel = document.getElementById("settingsPanel");
@@ -480,9 +496,15 @@ const middleNumLeftValue = document.getElementById("middleNumLeftValue");
 const middleNumFontSizeValue = document.getElementById("middleNumFontSizeValue");
 const middleNumFontWeightValue = document.getElementById("middleNumFontWeightValue");
 
-openSettingsBtn.onclick = () => { settingsPanel.style.display = "block"; };
-closeSettingsBtn.onclick = () => { settingsPanel.style.display = "none"; };
+/* ——— SETTINGS PANEL OPEN/CLOSE ——— */
+openSettingsBtn.onclick = () => {
+  settingsPanel.style.display = "block";
+};
+closeSettingsBtn.onclick = () => {
+  settingsPanel.style.display = "none";
+};
 
+/* ——— UPDATE FUNCTIONS ——— */
 function updateRing() {
   qrRing.style.top = qrTop + "px";
   qrRing.style.left = qrLeft + "%";
@@ -543,6 +565,7 @@ function updateMiddleNumberStyle() {
   middleNumFontWeightValue.textContent = middleNumFontWeight.toString();
 }
 
+/* ——— BLINK LOGIC ——— */
 function applyBlinkState() {
   const opacity = barsVisible ? "1" : "0";
   bar1.style.opacity = opacity;
@@ -555,19 +578,23 @@ function startBlinking() {
     clearInterval(blinkIntervalId);
     blinkIntervalId = null;
   }
+
   if (!blinkEnabled) {
     barsVisible = true;
     applyBlinkState();
     return;
   }
+
   barsVisible = true;
   applyBlinkState();
+
   blinkIntervalId = setInterval(() => {
     barsVisible = !barsVisible;
     applyBlinkState();
   }, blinkSpeed);
 }
 
+/* ——— EVENT LISTENERS ——— */
 qrTopSlider.oninput    = e => { qrTop = +e.target.value; updateRing(); };
 qrLeftSlider.oninput   = e => { qrLeft = +e.target.value; updateRing(); };
 qrSizeSlider.oninput   = e => { qrSize = +e.target.value; updateRing(); };
@@ -579,21 +606,48 @@ barsLeftSlider.oninput = e => { barsLeft = +e.target.value; updateBars(); };
 barsWidthSlider.oninput= e => { barsWidth = +e.target.value; updateBars(); };
 barsHeightSlider.oninput= e => { barsHeight = +e.target.value; updateBars(); };
 
-expiryTopSlider.oninput = e => { expiryTop = +e.target.value; updateExpiryStyle(); };
-expiryFontSizeSlider.oninput = e => { expiryFontSize = +e.target.value; updateExpiryStyle(); };
-expiryFontWeightSlider.oninput = e => { expiryFontWeight = +e.target.value; updateExpiryStyle(); };
+expiryTopSlider.oninput = e => {
+  expiryTop = +e.target.value;
+  updateExpiryStyle();
+};
 
-blinkEnabledToggle.onchange = e => { blinkEnabled = e.target.checked; startBlinking(); };
+expiryFontSizeSlider.oninput = e => {
+  expiryFontSize = +e.target.value;
+  updateExpiryStyle();
+};
+
+expiryFontWeightSlider.oninput = e => {
+  expiryFontWeight = +e.target.value;
+  updateExpiryStyle();
+};
+
+blinkEnabledToggle.onchange = e => {
+  blinkEnabled = e.target.checked;
+  startBlinking();
+};
+
 blinkSpeedSlider.oninput = e => {
   blinkSpeed = +e.target.value;
   blinkSpeedValue.textContent = blinkSpeed + " ms";
   if (blinkEnabled) startBlinking();
 };
 
-qrBgColorInput.oninput = e => { qrBgColor = e.target.value; updateRing(); };
-bar1ColorInput.oninput = e => { bar1Color = e.target.value; updateBars(); };
-bar2ColorInput.oninput = e => { bar2Color = e.target.value; updateBars(); };
-bar3ColorInput.oninput = e => { bar3Color = e.target.value; updateBars(); };
+qrBgColorInput.oninput = e => {
+  qrBgColor = e.target.value;
+  updateRing();
+};
+bar1ColorInput.oninput = e => {
+  bar1Color = e.target.value;
+  updateBars();
+};
+bar2ColorInput.oninput = e => {
+  bar2Color = e.target.value;
+  updateBars();
+};
+bar3ColorInput.oninput = e => {
+  bar3Color = e.target.value;
+  updateBars();
+};
 
 bgUpload.onchange = e => {
   const file = e.target.files[0];
@@ -607,16 +661,33 @@ bgUpload.onchange = e => {
   reader.readAsDataURL(file);
 };
 
-middleNumTopSlider.oninput = e => { middleNumTop = +e.target.value; updateMiddleNumberStyle(); };
-middleNumLeftSlider.oninput = e => { middleNumLeft = +e.target.value; updateMiddleNumberStyle(); };
-middleNumFontSizeSlider.oninput = e => { middleNumFontSize = +e.target.value; updateMiddleNumberStyle(); };
-middleNumFontWeightSlider.oninput = e => { middleNumFontWeight = +e.target.value; updateMiddleNumberStyle(); };
+middleNumTopSlider.oninput = e => {
+  middleNumTop = +e.target.value;
+  updateMiddleNumberStyle();
+};
 
+middleNumLeftSlider.oninput = e => {
+  middleNumLeft = +e.target.value;
+  updateMiddleNumberStyle();
+};
+
+middleNumFontSizeSlider.oninput = e => {
+  middleNumFontSize = +e.target.value;
+  updateMiddleNumberStyle();
+};
+
+middleNumFontWeightSlider.oninput = e => {
+  middleNumFontWeight = +e.target.value;
+  updateMiddleNumberStyle();
+};
+
+// Click to increase number (0–9 loop)
 middleNumber.onclick = () => {
   middleNumValue = (middleNumValue + 1) % 10;
   middleNumber.textContent = middleNumValue.toString();
 };
 
+/* ——— INITIALIZE ——— */
 updateRing();
 updateBars();
 updateExpiryStyle();
