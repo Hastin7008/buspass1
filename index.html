@@ -16,68 +16,83 @@
 <body class="w-full h-screen flex bg-[#1797D0]">
 
   <!-- SETTINGS PANEL -->
-  <!-- (unchanged, keeping your full settings UI) -->
+  <div id="settingsPanel"
+       class="w-96 bg-white overflow-y-auto flex flex-col flex-shrink-0 shadow-xl">
+    
+    <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+      <h2 class="font-bold text-xl text-black">Settings</h2>
 
-  <!-- PREVIEW PANEL -->
-  <div class="flex-1 flex items-center justify-center overflow-hidden relative">
-
-    <div id="bgImageContainer"
-         class="absolute inset-0 bg-no-repeat bg-center bg-contain"
-         style="background-color:#1797D0;"></div>
-
-    <button id="openSettingsBtn"
-      aria-label="Open settings"
-      class="absolute top-4 right-4 z-50"
-      style="background:transparent;border:none;width:40px;height:40px;">
-      ⚙️
-    </button>
-
-    <!-- PHONE -->
-    <div class="relative w-[375px] h-[812px] pointer-events-auto">
-
-      <!-- NEW: Switchable Photo -->
-      <img id="switchablePhoto"
-           src="https://raw.githubusercontent.com/USERNAME/REPO/main/photo1.jpg"
-           alt="Photo"
-           style="
-             position:absolute;
-             top:150px;
-             left:50%;
-             transform:translateX(-50%);
-             width:200px;
-             height:auto;
-           ">
-
-      <div id="qrRing" class="absolute"
-        style="top:82px;left:50%;transform:translateX(-50%);
-               width:169px;height:169px;border-width:13px;
-               border-style:solid;border-color:#9CA3AF;border-radius:16px;">
-      </div>
-
-      <div id="colorBars" class="absolute flex"
-        style="top:674px;left:50%;transform:translateX(-50%);
-               width:278px;height:20px;">
-        <div id="bar1" style="flex:1;background:#22C55E;"></div>
-        <div id="bar2" style="flex:1;background:#EF4444;"></div>
-        <div id="bar3" style="flex:1;background:#22C55E;"></div>
-      </div>
-
-      <h3 id="expiryText"
-          class="absolute w-full text-center cursor-pointer"
-          style="top:727px;color:black;font-size:21px;font-weight:600;">
-        Expires in 60:00
-      </h3>
-
-      <h1 id="middleNumber"
-          class="absolute w-full text-center select-none"
-          style="top:309px;left:50%;transform:translateX(-50%);
-                 color:black;font-size:56px;font-weight:800;cursor:pointer;">
-        2
-      </h1>
-
+      <button id="closeSettingsBtn"
+        class="p-2 rounded-full"
+        style="color:#1797D0; font-size:20px; font-weight:bold;">
+        ✕
+      </button>
     </div>
-  </div>
 
+    <div class="p-4 overflow-y-auto flex-1">
+      <!-- (all your settings controls remain here, unchanged) -->
+      </div>
+</div>
+
+<!-- PREVIEW PANEL -->
+<div class="flex-1 flex items-center justify-center overflow-hidden relative">
+
+  <div id="bgImageContainer"
+       class="absolute inset-0 bg-no-repeat bg-center bg-contain"
+       style="background-color:#1797D0;"></div>
+
+  <button id="openSettingsBtn"
+    aria-label="Open settings"
+    class="absolute top-4 right-4 z-50"
+    style="background:transparent;border:none;width:40px;height:40px;">
+    ⚙️
+  </button>
+
+  <!-- PHONE -->
+  <div class="relative w-[375px] h-[812px] pointer-events-auto">
+
+    <!-- NEW: Switchable Photo -->
+    <img id="switchablePhoto"
+         src="https://raw.githubusercontent.com/USERNAME/REPO/main/photo1.jpg"
+         alt="Photo"
+         style="
+           position:absolute;
+           top:150px;
+           left:50%;
+           transform:translateX(-50%);
+           width:200px;
+           height:auto;
+         ">
+
+    <div id="qrRing" class="absolute"
+      style="top:82px;left:50%;transform:translateX(-50%);
+             width:169px;height:169px;border-width:13px;
+             border-style:solid;border-color:#9CA3AF;border-radius:16px;">
+    </div>
+
+    <div id="colorBars" class="absolute flex"
+      style="top:674px;left:50%;transform:translateX(-50%);
+             width:278px;height:20px;">
+      <div id="bar1" style="flex:1;background:#22C55E;"></div>
+      <div id="bar2" style="flex:1;background:#EF4444;"></div>
+      <div id="bar3" style="flex:1;background:#22C55E;"></div>
+    </div>
+
+    <h3 id="expiryText"
+        class="absolute w-full text-center cursor-pointer"
+        style="top:727px;color:black;font-size:21px;font-weight:600;">
+      Expires in 60:00
+    </h3>
+
+    <h1 id="middleNumber"
+        class="absolute w-full text-center select-none"
+        style="top:309px;left:50%;transform:translateX(-50%);
+               color:black;font-size:56px;font-weight:800;cursor:pointer;">
+      2
+    </h1>
+
+  </div>
+</div>
 <script>
 /* ——— STATE ——— */
 let expiryDuration = 3600;      // default 60 minutes
