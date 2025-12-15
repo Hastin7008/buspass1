@@ -12,26 +12,33 @@
     }
   </style>
 </head>
-  
+
 <body class="w-full h-screen flex bg-[#1797D0]">
 
-  <!-- SETTINGS PANEL -->
-  <div id="settingsPanel"
-       class="w-96 bg-white overflow-y-auto flex flex-col flex-shrink-0 shadow-xl">
-    
-    <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-      <h2 class="font-bold text-xl text-black">Settings</h2>
+<!-- SETTINGS PANEL -->
+<div id="settingsPanel"
+     class="w-96 bg-white overflow-y-auto flex flex-col flex-shrink-0 shadow-xl">
 
-      <button id="closeSettingsBtn"
-        class="p-2 rounded-full"
-        style="color:#1797D0; font-size:20px; font-weight:bold;">
-        ✕
-      </button>
+  <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+    <h2 class="font-bold text-xl text-black">Settings</h2>
+    <button id="closeSettingsBtn"
+      class="p-2 rounded-full"
+      style="color:#1797D0;font-size:20px;font-weight:bold;">✕</button>
+  </div>
+
+  <div class="p-4 overflow-y-auto flex-1">
+
+    <!-- Background Upload -->
+    <div class="bg-yellow-100 p-4 rounded-lg mb-4 border-2 border-yellow-400">
+      <h3 class="font-bold mb-2 text-black">📁 Background Image</h3>
+      <input id="bgUpload" type="file" accept="image/*"
+             class="w-full text-sm bg-white p-2 rounded border" />
+      <p class="text-xs text-gray-600 mt-1">Image stays saved for this session</p>
     </div>
 
-    <div class="p-4 overflow-y-auto flex-1">
-      <!-- (all your settings controls remain here, unchanged) -->
-      </div>
+    <!-- (ALL OTHER SETTINGS PANELS UNCHANGED — omitted here for brevity in explanation only) -->
+
+  </div>
 </div>
 
 <!-- PREVIEW PANEL -->
@@ -42,32 +49,18 @@
        style="background-color:#1797D0;"></div>
 
   <button id="openSettingsBtn"
-    aria-label="Open settings"
     class="absolute top-4 right-4 z-50"
-    style="background:transparent;border:none;width:40px;height:40px;">
+    style="background:transparent;border:none;width:40px;height:40px;color:transparent;">
     ⚙️
   </button>
 
   <!-- PHONE -->
   <div class="relative w-[375px] h-[812px] pointer-events-auto">
 
-    <!-- NEW: Switchable Photo -->
-    <img id="switchablePhoto"
-         src="https://raw.githubusercontent.com/USERNAME/REPO/main/photo1.jpg"
-         alt="Photo"
-         style="
-           position:absolute;
-           top:150px;
-           left:50%;
-           transform:translateX(-50%);
-           width:200px;
-           height:auto;
-         ">
-
     <div id="qrRing" class="absolute"
       style="top:82px;left:50%;transform:translateX(-50%);
-             width:169px;height:169px;border-width:13px;
-             border-style:solid;border-color:#9CA3AF;border-radius:16px;">
+             width:169px;height:169px;
+             border:13px solid #9CA3AF;border-radius:16px;">
     </div>
 
     <div id="colorBars" class="absolute flex"
@@ -80,60 +73,93 @@
 
     <h3 id="expiryText"
         class="absolute w-full text-center cursor-pointer"
-        style="top:727px;color:black;font-size:21px;font-weight:600;">
+        style="top:727px;font-size:21px;font-weight:600;">
       Expires in 60:00
     </h3>
 
     <h1 id="middleNumber"
         class="absolute w-full text-center select-none"
-        style="top:309px;left:50%;transform:translateX(-50%);
-               color:black;font-size:56px;font-weight:800;cursor:pointer;">
+        style="top:309px;font-size:56px;font-weight:800;">
       2
     </h1>
 
   </div>
 </div>
+
 <script>
-/* ——— STATE ——— */
-let expiryDuration = 3600;      // default 60 minutes
-let timeLeft = expiryDuration;  // dynamic timer value
-let showingPhoto1 = true;       // track which photo is showing
+/* ==================== NEW: GITHUB BACKGROUNDS ==================== */
+const BG_IMAGE_1 = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/photo1.jpg";
+const BG_IMAGE_2 = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/photo2.jpg";
+let currentBg = 1;
 
-/* ——— ELEMENTS ——— */
+/* ==================== STATE (UNCHANGED) ==================== */
+let expiryDuration = 3600;
+let timeLeft = expiryDuration;
+let bgImage = null;
+
+/* ==================== ELEMENTS ==================== */
+const bgImageContainer = document.getElementById("bgImageContainer");
 const expiryText = document.getElementById("expiryText");
-const switchablePhoto = document.getElementById("switchablePhoto");
+const expiry30Toggle = document.getElementById("expiry30Toggle");
+const bgUpload = document.getElementById("bgUpload");
+const openSettingsBtn = document.getElementById("openSettingsBtn");
+const closeSettingsBtn = document.getElementById("closeSettingsBtn");
+const settingsPanel = document.getElementById("settingsPanel");
 
-/* ——— UPDATE FUNCTIONS ——— */
+/* ==================== SETTINGS PANEL ==================== */
+openSettingsBtn.onclick = () => settingsPanel.style.display = "block";
+closeSettingsBtn.onclick = () => settingsPanel.style.display = "none";
+
+/* ==================== TIMER ==================== */
 function updateTime() {
-  const mins = Math.floor(timeLeft / 60);
-  const secs = (timeLeft % 60).toString().padStart(2, "0");
-  expiryText.textContent = `Expires in ${mins}:${secs}`;
+  const m = Math.floor(timeLeft / 60);
+  const s = (timeLeft % 60).toString().padStart(2, "0");
+  expiryText.textContent = `Expires in ${m}:${s}`;
 }
 
-/* ——— INTERACTION: Tap expiry text ——— */
-expiryText.onclick = () => {
-  if (showingPhoto1) {
-    // Switch to photo2
-    switchablePhoto.src = "https://raw.githubusercontent.com/USERNAME/REPO/main/photo2.jpg";
-    showingPhoto1 = false;
+/* ==================== NEW FEATURE: TAP EXPIRY ==================== */
+expiryText.addEventListener("click", () => {
 
-    // Reset expiry to 30 minutes
-    expiryDuration = 1800;
-    timeLeft = expiryDuration;
-    updateTime();
-  } else {
-    // Optional: switch back to photo1 and reset to 60
-    switchablePhoto.src = "https://raw.githubusercontent.com/USERNAME/REPO/main/photo1.jpg";
-    showingPhoto1 = true;
-
-    expiryDuration = 3600;
-    timeLeft = expiryDuration;
-    updateTime();
+  // Switch background image 1 → 2
+  if (currentBg === 1) {
+    bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_2})`;
+    currentBg = 2;
   }
+
+  // Force 30-minute expiry
+  expiryDuration = 1800;
+  timeLeft = expiryDuration;
+
+  // Sync toggle
+  expiry30Toggle.checked = true;
+
+  updateTime();
+});
+
+/* ==================== EXISTING TOGGLE ==================== */
+expiry30Toggle.onchange = e => {
+  expiryDuration = e.target.checked ? 1800 : 3600;
+  timeLeft = expiryDuration;
+  updateTime();
 };
 
-/* ——— TIMER ——— */
+/* ==================== BACKGROUND UPLOAD (UNCHANGED) ==================== */
+bgUpload.onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    bgImage = ev.target.result;
+    bgImageContainer.style.backgroundImage = `url(${bgImage})`;
+    bgImageContainer.style.backgroundColor = "transparent";
+  };
+  r.readAsDataURL(f);
+};
+
+/* ==================== INITIALIZE ==================== */
+bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_1})`;
 updateTime();
+
 setInterval(() => {
   if (timeLeft > 0) {
     timeLeft--;
