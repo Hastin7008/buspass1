@@ -295,30 +295,22 @@
     </div>
   </div>
 
-  <!-- PREVIEW PANEL -->
-  <div class="flex-1 flex items-center justify-center overflow-hidden relative">
+<!-- PREVIEW PANEL -->
+<div class="flex-1 flex items-center justify-center overflow-hidden relative">
+
+  <!-- ZOOM WRAPPER (NEW, ONLY 1 DIV ADDED) -->
+  <div id="zoomWrapper" class="relative">
 
     <div id="bgImageContainer"
          class="absolute inset-0 bg-no-repeat bg-center bg-contain"
          style="background-color:#1797D0;"></div>
 
-    <button id="openSettingsBtn"
-      aria-label="Open settings"
-      class="absolute top-4 right-4 z-50"
-      style="
-        background:transparent;
-        border:none;
-        width:40px;
-        height:40px;
-        padding:0;
-        margin:0;
-        color:transparent;
-      ">
-      ⚙️
-    </button>
+    <button id="openSettingsBtn" ...>⚙️</button>
 
     <!-- PHONE -->
-    <div class="relative w-[375px] h-[812px] pointer-events-auto">
+    <div id="phoneContainer"
+         class="relative w-[375px] h-[812px] pointer-events-auto">
+
 
       <div id="qrRing" class="absolute"
         style="
