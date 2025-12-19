@@ -18,13 +18,17 @@
 
 <!-- ================= SETTINGS PANEL ================= -->
 <div id="settingsPanel"
-     class="w-96 bg-white overflow-y-auto flex flex-col flex-shrink-0 shadow-xl">
+     class="w-96 bg-white overflow-y-auto flex flex-col flex-shrink-0 shadow-xl"
+     style="display:none;">
 
   <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
     <h2 class="font-bold text-xl text-black">Settings</h2>
+
     <button id="closeSettingsBtn"
       class="p-2 rounded-full"
-      style="color:#1797D0;font-size:20px;font-weight:bold;">✕</button>
+      style="color:#1797D0;font-size:20px;font-weight:bold;">
+      ✕
+    </button>
   </div>
 
   <div class="p-4 overflow-y-auto flex-1">
@@ -40,53 +44,18 @@
       <p class="text-[11px] text-gray-600 mt-1">Zoom locked</p>
     </div>
 
-    <!-- Color Pickers -->
-    <div class="bg-gray-100 p-4 rounded-lg mb-4">
-      <h3 class="font-bold mb-3 text-black">🎨 Colors</h3>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs font-medium block mb-1 text-black">Ring Border</label>
-          <input id="qrBgColorInput" type="color" value="FE5D5B"
-            class="w-full h-10 rounded cursor-pointer" />
-        </div>
-        <div>
-          <label class="text-xs font-medium block mb-1 text-black">Bar 1</label>
-          <input id="bar1ColorInput" type="color" value="#70D352"
-            class="w-full h-10 rounded cursor-pointer" />
-        </div>
-        <div>
-          <label class="text-xs font-medium block mb-1 text-black">Bar 2</label>
-          <input id="bar2ColorInput" type="color" value="#C1E080"
-            class="w-full h-10 rounded cursor-pointer" />
-        </div>
-        <div>
-          <label class="text-xs font-medium block mb-1 text-black">Bar 3</label>
-          <input id="bar3ColorInput" type="color" value="#3C7373"
-            class="w-full h-10 rounded cursor-pointer" />
-        </div>
-      </div>
-    </div>
-
-    <!-- RING CONTROLS -->
-    <div class="bg-blue-100 p-4 rounded-lg mb-4">
-      <h3 class="font-bold mb-3 text-black">⭕ Ring</h3>
-      <div class="space-y-3">
-        <input id="qrTopSlider" type="range" min="-500" max="900" value="82" />
-        <input id="qrLeftSlider" type="range" min="0" max="100" value="50" />
-        <input id="qrSizeSlider" type="range" min="120" max="450" value="169" />
-        <input id="qrBorderWidthSlider" type="range" min="1" max="40" value="13" />
-        <input id="qrBorderRadiusSlider" type="range" min="0" max="80" value="16" />
-      </div>
-    </div>
-
-    <!-- EXPIRY TOGGLE -->
+    <!-- Expiry Duration -->
     <div class="bg-red-100 p-4 rounded-lg mb-4">
       <h3 class="font-bold mb-3 text-black">⏳ Expiry Duration</h3>
-      <label class="inline-flex items-center cursor-pointer">
-        <input id="expiry30Toggle" type="checkbox" class="sr-only peer" />
-        <div class="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-500"></div>
-        <div class="w-4 h-4 bg-white rounded-full shadow absolute"></div>
-      </label>
+      <div class="flex items-center justify-between">
+        <label class="text-sm font-medium text-black">Use 30-minute Timer</label>
+        <label class="inline-flex items-center cursor-pointer relative">
+          <input id="expiry30Toggle" type="checkbox" class="sr-only peer" />
+          <div class="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-500"></div>
+          <div class="w-4 h-4 bg-white rounded-full shadow absolute left-0.5 top-0.5
+                      peer-checked:translate-x-5 transition-transform"></div>
+        </label>
+      </div>
     </div>
 
   </div>
@@ -95,18 +64,19 @@
 <!-- ================= PREVIEW PANEL ================= -->
 <div class="flex-1 relative overflow-hidden flex items-center justify-center">
 
-  <!-- ✅ FULL IMAGE, NO CROP -->
+  <!-- Background (AS-IS, no crop, no stretch) -->
   <div id="bgImageContainer"
        class="absolute inset-0 bg-no-repeat bg-center bg-contain"
        style="background-color:#1797D0;"></div>
 
+  <!-- OPEN SETTINGS -->
   <button id="openSettingsBtn"
-    class="absolute top-4 right-4 z-50 text-white text-xl">⚙️</button>
+    class="absolute top-4 right-4 z-50 text-white text-xl">
+    ⚙️
+  </button>
 
   <!-- PHONE -->
-  <div class="relative w-[375px] h-[812px]">
-
-    <div id="qrRing" class="absolute"></div>
+  <div class="relative w-[375px] h-[812px] pointer-events-auto">
 
     <h3 id="expiryText"
         class="absolute w-full text-center cursor-pointer"
@@ -124,31 +94,54 @@
 </div>
 
 <script>
-/* STATE */
+/* ================= STATE ================= */
 let expiryDuration = 3600;
 let timeLeft = expiryDuration;
 let middleNumValue = 2;
 
-/* BACKGROUND IMAGES */
-const BG_IMAGE_1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
-const BG_IMAGE_2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
+/* ================= BACKGROUND IMAGES ================= */
+const BG_IMAGE_1 =
+  "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
+const BG_IMAGE_2 =
+  "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
 
-/* ELEMENTS */
+/* ================= ELEMENTS ================= */
+const settingsPanel = document.getElementById("settingsPanel");
+const openSettingsBtn = document.getElementById("openSettingsBtn");
+const closeSettingsBtn = document.getElementById("closeSettingsBtn");
+
 const bgImageContainer = document.getElementById("bgImageContainer");
 const expiryText = document.getElementById("expiryText");
-const middleNumber = document.getElementById("middleNumber");
 const expiry30Toggle = document.getElementById("expiry30Toggle");
+const middleNumber = document.getElementById("middleNumber");
+
 const zoomSlider = document.getElementById("zoomSlider");
 const zoomValue = document.getElementById("zoomValue");
 
-/* TIMER */
+/* ================= SETTINGS OPEN / CLOSE ================= */
+openSettingsBtn.addEventListener("click", () => {
+  settingsPanel.style.display = "flex";
+});
+
+closeSettingsBtn.addEventListener("click", () => {
+  settingsPanel.style.display = "none";
+});
+
+/* ================= TIMER ================= */
 function updateTime() {
   const m = Math.floor(timeLeft / 60);
   const s = String(timeLeft % 60).padStart(2, "0");
   expiryText.textContent = `Expires in ${m}:${s}`;
 }
 
-/* EXPIRY CLICK */
+/* ================= EXPIRY TOGGLE ================= */
+expiry30Toggle.onchange = e => {
+  expiryDuration = e.target.checked ? 1800 : 3600;
+  timeLeft = expiryDuration;
+  updateTime();
+};
+
+/* ================= EXPIRY CLICK ================= */
 expiryText.onclick = () => {
   bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_2})`;
   expiryDuration = 1800;
@@ -157,19 +150,19 @@ expiryText.onclick = () => {
   updateTime();
 };
 
-/* TAP FEATURE */
+/* ================= TAP FEATURE ================= */
 middleNumber.onclick = () => {
   middleNumValue = (middleNumValue + 1) % 10;
   middleNumber.textContent = middleNumValue;
 };
 
-/* ZOOM LOCK */
+/* ================= ZOOM LOCK ================= */
 zoomSlider.oninput = () => {
   zoomSlider.value = 100;
   zoomValue.textContent = "100%";
 };
 
-/* INIT */
+/* ================= INIT ================= */
 bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_1})`;
 updateTime();
 
@@ -183,4 +176,3 @@ setInterval(() => {
 
 </body>
 </html>
-
