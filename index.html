@@ -1,38 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>TicketUI – Clean Click Controls</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
-                   "SF Pro Display", system-ui, sans-serif;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>TicketUI – Clean Click Color</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                 "SF Pro Display", system-ui, sans-serif;
+  }
+</style>
 </head>
 
 <body class="w-full h-screen flex bg-[#1797D0]">
 
-<!-- EMPTY SETTINGS PANEL (kept only for toggle button) -->
-<div id="settingsPanel"
-     class="hidden w-96 bg-white shadow-xl"></div>
-
-<!-- PREVIEW PANEL -->
-<div class="flex-1 flex items-center justify-center overflow-hidden relative">
+<div class="flex-1 flex items-center justify-center relative overflow-hidden">
 
   <div id="bgImageContainer"
        class="absolute inset-0 bg-no-repeat bg-center bg-contain"></div>
 
-  <button id="openSettingsBtn"
-    class="absolute top-4 right-4 z-50"
-    style="background:none;border:none;font-size:22px">
-    ⚙️
-  </button>
-
   <!-- PHONE -->
-  <div class="relative w-[375px] h-[812px]">
+  <div class="relative w-[375px] h-[812px] z-10">
 
     <!-- QR RING -->
     <div id="qrRing"
@@ -43,7 +32,7 @@
         transform:translateX(-50%);
         width:169px;
         height:169px;
-        border:13px solid #9CA3AF;
+        border:13px solid;
         border-radius:16px;
       ">
     </div>
@@ -58,9 +47,9 @@
         width:278px;
         height:20px;
       ">
-      <div id="bar1" class="flex-1 cursor-pointer" style="background:#22C55E;"></div>
-      <div id="bar2" class="flex-1 cursor-pointer" style="background:#EF4444;"></div>
-      <div id="bar3" class="flex-1 cursor-pointer" style="background:#22C55E;"></div>
+      <div id="bar1" class="flex-1 cursor-pointer"></div>
+      <div id="bar2" class="flex-1 cursor-pointer"></div>
+      <div id="bar3" class="flex-1 cursor-pointer"></div>
     </div>
 
     <!-- EXPIRY -->
@@ -68,9 +57,9 @@
         class="absolute w-full text-center cursor-pointer select-none"
         style="
           top:727px;
-          color:black;
           font-size:21px;
           font-weight:600;
+          color:black;
         ">
       Expires in 60:00
     </h3>
@@ -82,7 +71,6 @@
           top:309px;
           left:50%;
           transform:translateX(-50%);
-          color:black;
           font-size:56px;
           font-weight:800;
         ">
@@ -92,113 +80,118 @@
   </div>
 </div>
 
+<!-- ONE REAL COLOR PICKER -->
+<input id="colorPicker" type="color" style="position:fixed;left:-9999px;" />
+
 <script>
-/* ---------------- STATE ---------------- */
+/* ===== DEFAULT COLORS (CHANGE HERE) ===== */
+let DEFAULT_RING_COLOR = "#9CA3AF";
+let DEFAULT_BAR_COLORS = ["#22C55E", "#EF4444", "#22C55E"];
+let DEFAULT_NUMBER_COLOR = "#000000";
+
+/* ===== STATE ===== */
+let ringColor = DEFAULT_RING_COLOR;
+let barColors = [...DEFAULT_BAR_COLORS];
+let numberColor = DEFAULT_NUMBER_COLOR;
+
 let expiryDuration = 3600;
 let timeLeft = expiryDuration;
-let middleNumValue = 2;
-
-let qrBgColor = "#9CA3AF";
-let bar1Color = "#22C55E";
-let bar2Color = "#EF4444";
-let bar3Color = "#22C55E";
-
-let blinkIntervalId = null;
-let barsVisible = true;
-
-/* ---------------- BACKGROUNDS ---------------- */
-const BG_IMAGE_1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
-const BG_IMAGE_2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
 let currentBgIndex = 1;
+let middleValue = 2;
 
-/* ---------------- ELEMENTS ---------------- */
+/* ===== ELEMENTS ===== */
 const qrRing = document.getElementById("qrRing");
 const bar1 = document.getElementById("bar1");
 const bar2 = document.getElementById("bar2");
 const bar3 = document.getElementById("bar3");
-const expiryText = document.getElementById("expiryText");
 const middleNumber = document.getElementById("middleNumber");
+const expiryText = document.getElementById("expiryText");
 const bgImageContainer = document.getElementById("bgImageContainer");
+const picker = document.getElementById("colorPicker");
 
-/* ---------------- HELPERS ---------------- */
-function openColorPicker(currentColor, onChange) {
-  const input = document.createElement("input");
-  input.type = "color";
-  input.value = currentColor;
-  input.style.position = "fixed";
-  input.style.left = "-9999px";
-  document.body.appendChild(input);
-  input.oninput = e => onChange(e.target.value);
-  input.click();
-  input.onchange = () => document.body.removeChild(input);
+/* ===== BACKGROUNDS ===== */
+const BG1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
+const BG2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
+
+/* ===== APPLY COLORS ===== */
+function applyColors() {
+  qrRing.style.borderColor = ringColor;
+  bar1.style.background = barColors[0];
+  bar2.style.background = barColors[1];
+  bar3.style.background = barColors[2];
+  middleNumber.style.color = numberColor;
 }
 
+/* ===== COLOR PICKER HANDLER ===== */
+function pickColor(current, cb) {
+  picker.value = current;
+  picker.oninput = e => cb(e.target.value);
+  picker.click();
+}
+
+/* ===== BLINK (600ms FIXED) ===== */
+let visible = true;
+setInterval(() => {
+  visible = !visible;
+  const o = visible ? "1" : "0";
+  bar1.style.opacity = o;
+  bar2.style.opacity = o;
+  bar3.style.opacity = o;
+}, 600);
+
+/* ===== TIME ===== */
 function updateTime() {
-  const mins = Math.floor(timeLeft / 60);
-  const secs = String(timeLeft % 60).padStart(2, "0");
-  expiryText.textContent = `Expires in ${mins}:${secs}`;
+  const m = Math.floor(timeLeft / 60);
+  const s = String(timeLeft % 60).padStart(2, "0");
+  expiryText.textContent = `Expires in ${m}:${s}`;
 }
 
-/* ---------------- BLINK (FIXED 600ms) ---------------- */
-function startBlinking() {
-  clearInterval(blinkIntervalId);
-  blinkIntervalId = setInterval(() => {
-    barsVisible = !barsVisible;
-    const o = barsVisible ? "1" : "0";
-    bar1.style.opacity = o;
-    bar2.style.opacity = o;
-    bar3.style.opacity = o;
-  }, 600);
-}
+/* ===== CLICK EVENTS ===== */
+qrRing.onclick = () => pickColor(ringColor, c => {
+  ringColor = c;
+  applyColors();
+});
 
-/* ---------------- CLICK ACTIONS ---------------- */
-qrRing.onclick = () =>
-  openColorPicker(qrBgColor, c => {
-    qrBgColor = c;
-    qrRing.style.borderColor = c;
-  });
-
-bar1.onclick = () =>
-  openColorPicker(bar1Color, c => bar1.style.background = bar1Color = c);
-
-bar2.onclick = () =>
-  openColorPicker(bar2Color, c => bar2.style.background = bar2Color = c);
-
-bar3.onclick = () =>
-  openColorPicker(bar3Color, c => bar3.style.background = bar3Color = c);
+bar1.onclick = () => pickColor(barColors[0], c => {
+  barColors[0] = c;
+  applyColors();
+});
+bar2.onclick = () => pickColor(barColors[1], c => {
+  barColors[1] = c;
+  applyColors();
+});
+bar3.onclick = () => pickColor(barColors[2], c => {
+  barColors[2] = c;
+  applyColors();
+});
 
 middleNumber.onclick = () => {
-  middleNumValue = (middleNumValue + 1) % 10;
-  middleNumber.textContent = middleNumValue;
+  middleValue = (middleValue + 1) % 10;
+  middleNumber.textContent = middleValue;
 };
 
 middleNumber.oncontextmenu = e => {
   e.preventDefault();
-  openColorPicker(
-    middleNumber.style.color || "#000000",
-    c => middleNumber.style.color = c
-  );
+  pickColor(numberColor, c => {
+    numberColor = c;
+    applyColors();
+  });
 };
 
 expiryText.onclick = () => {
-  const is60 = expiryDuration === 3600;
-  expiryDuration = is60 ? 1800 : 3600;
+  expiryDuration = expiryDuration === 3600 ? 1800 : 3600;
   timeLeft = expiryDuration;
 
   bgImageContainer.style.backgroundImage =
-    currentBgIndex === 1
-      ? `url(${BG_IMAGE_2})`
-      : `url(${BG_IMAGE_1})`;
-
+    currentBgIndex === 1 ? `url(${BG2})` : `url(${BG1})`;
   currentBgIndex = currentBgIndex === 1 ? 2 : 1;
+
   updateTime();
 };
 
-/* ---------------- INIT ---------------- */
-bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_1})`;
-bgImageContainer.style.backgroundColor = "transparent";
-
-startBlinking();
+/* ===== INIT ===== */
+bgImageContainer.style.backgroundImage = `url(${BG1})`;
+applyColors();
 updateTime();
 
 setInterval(() => {
