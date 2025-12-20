@@ -4,11 +4,19 @@
   <meta charset="UTF-8" />
   <title>TicketUI – Pure HTML + JS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 🔒 lock zoom on mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
                    "SF Pro Display", system-ui, sans-serif;
+    }
+
+    /* 🔒 Prevent touch zoom gestures (still allows taps/clicks) */
+    #phoneContainer {
+      touch-action: manipulation;
     }
   </style>
 </head>
@@ -32,7 +40,7 @@
     <!-- MAIN SETTINGS CONTENT -->
     <div class="p-4 overflow-y-auto flex-1">
 
-      <!-- Zoom Controls -->
+      <!-- Zoom Controls (kept, but locked to 100%) -->
       <div class="bg-gray-200 p-4 rounded-lg mb-4">
         <h3 class="font-bold mb-3 text-black">🔍 Zoom</h3>
         <div>
@@ -41,10 +49,11 @@
             <span id="zoomValue" class="text-xs bg-white px-2 py-1 rounded">100%</span>
           </div>
           <input id="zoomSlider" type="range" min="0" max="100" value="100" class="w-full" />
+          <p class="text-[11px] text-gray-600 mt-2">
+            Zoom is locked for perfect alignment.
+          </p>
         </div>
       </div>
-
-      <!-- ✅ REMOVED: Background Upload option (as you asked) -->
 
       <!-- Color Pickers -->
       <div class="bg-gray-100 p-4 rounded-lg mb-4">
@@ -119,7 +128,6 @@
           </div>
         </div>
       </div>
-
       <!-- COLOR BAR CONTROLS -->
       <div class="bg-green-100 p-4 rounded-lg mb-4">
         <h3 class="font-bold mb-3 text-black">▬ Color Bars</h3>
@@ -285,33 +293,35 @@
     </div>
   </div>
 
-<!-- PREVIEW PANEL -->
-<div class="flex-1 flex items-center justify-center overflow-hidden relative">
+  <!-- PREVIEW PANEL -->
+  <div class="flex-1 flex items-center justify-center overflow-hidden relative">
 
-  <div id="bgImageContainer"
-       class="absolute inset-0 bg-no-repeat bg-center bg-cover"
-       style="background-color:#1797D0;">
-  </div>
+    <!-- background (NO STRETCH, NO CROP) -->
+    <div id="bgImageContainer"
+         class="absolute inset-0 bg-no-repeat bg-center"
+         style="
+           background-color:#1797D0;
+           background-size:contain;
+         ">
+    </div>
 
-  <button id="openSettingsBtn"
-    aria-label="Open settings"
-    class="absolute top-4 right-4 z-50"
-    style="
-      background:transparent;
-      border:none;
-      width:40px;
-      height:40px;
-      padding:0;
-      margin:0;
-      color:transparent;
-    ">
-    ⚙️
-  </button>
-
-</div>
+    <button id="openSettingsBtn"
+      aria-label="Open settings"
+      class="absolute top-4 right-4 z-50"
+      style="
+        background:transparent;
+        border:none;
+        width:40px;
+        height:40px;
+        padding:0;
+        margin:0;
+        color:transparent;
+      ">
+      ⚙️
+    </button>
 
     <!-- PHONE -->
-    <div class="relative w-[375px] h-[812px] pointer-events-auto">
+    <div id="phoneContainer" class="relative w-[375px] h-[812px] pointer-events-auto">
 
       <div id="qrRing" class="absolute"
         style="
@@ -367,11 +377,10 @@
 
     </div>
   </div>
-
 <script>
-/* ——— STATE ——— */
-let expiryDuration = 3600;      // default 60 minutes
-let timeLeft = expiryDuration;  // dynamic timer value
+/* ===================== STATE ===================== */
+let expiryDuration = 3600;
+let timeLeft = expiryDuration;
 
 let qrTop = 82;
 let qrLeft = 50;
@@ -404,108 +413,77 @@ let middleNumFontSize = 56;
 let middleNumFontWeight = 800;
 let middleNumValue = 2;
 
-/* ——— GitHub background images (UNCHANGED) ——— */
+/* ===================== BACKGROUNDS ===================== */
 const BG_IMAGE_1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
 const BG_IMAGE_2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
 let currentBgIndex = 1;
 
-/* ——— ELEMENTS ——— */
+/* ===================== ELEMENTS ===================== */
 const expiry30Toggle = document.getElementById("expiry30Toggle");
-
 const openSettingsBtn = document.getElementById("openSettingsBtn");
 const closeSettingsBtn = document.getElementById("closeSettingsBtn");
 const settingsPanel = document.getElementById("settingsPanel");
 
+const phoneContainer = document.getElementById("phoneContainer");
+const bgImageContainer = document.getElementById("bgImageContainer");
+
 const qrRing = document.getElementById("qrRing");
 const colorBars = document.getElementById("colorBars");
-
 const bar1 = document.getElementById("bar1");
 const bar2 = document.getElementById("bar2");
 const bar3 = document.getElementById("bar3");
 
-const qrTopSlider = document.getElementById("qrTopSlider");
-const qrLeftSlider = document.getElementById("qrLeftSlider");
-const qrSizeSlider = document.getElementById("qrSizeSlider");
-const qrBorderWidthSlider = document.getElementById("qrBorderWidthSlider");
-const qrBorderRadiusSlider = document.getElementById("qrBorderRadiusSlider");
-
-const barsTopSlider = document.getElementById("barsTopSlider");
-const barsLeftSlider = document.getElementById("barsLeftSlider");
-const barsWidthSlider = document.getElementById("barsWidthSlider");
-const barsHeightSlider = document.getElementById("barsHeightSlider");
-
-const qrTopValue = document.getElementById("qrTopValue");
-const qrLeftValue = document.getElementById("qrLeftValue");
-const qrSizeValue = document.getElementById("qrSizeValue");
-const qrBorderWidthValue = document.getElementById("qrBorderWidthValue");
-const qrBorderRadiusValue = document.getElementById("qrBorderRadiusValue");
-
-const barsTopValue = document.getElementById("barsTopValue");
-const barsLeftValue = document.getElementById("barsLeftValue");
-const barsWidthValue = document.getElementById("barsWidthValue");
-const barsHeightValue = document.getElementById("barsHeightValue");
-
-const qrBgColorInput = document.getElementById("qrBgColorInput");
-const bar1ColorInput = document.getElementById("bar1ColorInput");
-const bar2ColorInput = document.getElementById("bar2ColorInput");
-const bar3ColorInput = document.getElementById("bar3ColorInput");
-
-const bgImageContainer = document.getElementById("bgImageContainer");
-
 const expiryText = document.getElementById("expiryText");
-const expiryTopSlider = document.getElementById("expiryTopSlider");
-const expiryTopValue = document.getElementById("expiryTopValue");
-const expiryFontSizeSlider = document.getElementById("expiryFontSizeSlider");
-const expiryFontSizeValue = document.getElementById("expiryFontSizeValue");
-const expiryFontWeightSlider = document.getElementById("expiryFontWeightSlider");
-const expiryFontWeightValue = document.getElementById("expiryFontWeightValue");
-
-const blinkEnabledToggle = document.getElementById("blinkEnabledToggle");
-const blinkSpeedSlider = document.getElementById("blinkSpeedSlider");
-const blinkSpeedValue = document.getElementById("blinkSpeedValue");
-
 const middleNumber = document.getElementById("middleNumber");
-const middleNumTopSlider = document.getElementById("middleNumTopSlider");
-const middleNumLeftSlider = document.getElementById("middleNumLeftSlider");
-const middleNumFontSizeSlider = document.getElementById("middleNumFontSizeSlider");
-const middleNumFontWeightSlider = document.getElementById("middleNumFontWeightSlider");
-const middleNumTopValue = document.getElementById("middleNumTopValue");
-const middleNumLeftValue = document.getElementById("middleNumLeftValue");
-const middleNumFontSizeValue = document.getElementById("middleNumFontSizeValue");
-const middleNumFontWeightValue = document.getElementById("middleNumFontWeightValue");
 
 const zoomSlider = document.getElementById("zoomSlider");
 const zoomValue = document.getElementById("zoomValue");
 
-/* ——— SETTINGS PANEL ——— */
+/* ===================== SETTINGS PANEL ===================== */
 openSettingsBtn.onclick = () => settingsPanel.style.display = "block";
 closeSettingsBtn.onclick = () => settingsPanel.style.display = "none";
 
-/* ——— UPDATE FUNCTIONS ——— */
+/* ===================== HARD BLOCK ZOOM ===================== */
+window.addEventListener("wheel", e => {
+  if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+
+window.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && ["+", "-", "=", "0"].includes(e.key)) {
+    e.preventDefault();
+  }
+});
+
+/* ===================== BACKGROUND ===================== */
+function setBackground(url) {
+  const img = new Image();
+  img.onload = () => {
+    bgImageContainer.style.backgroundImage = `url(${url})`;
+    bgImageContainer.style.backgroundColor = "transparent";
+    autoPerfectAlign();
+  };
+  img.onerror = () => {
+    bgImageContainer.style.backgroundImage = `url(${url})`;
+    bgImageContainer.style.backgroundColor = "#1797D0";
+    autoPerfectAlign();
+  };
+  img.src = url;
+}
+
+/* ===================== PERFECT ALIGN ===================== */
+function autoPerfectAlign() {
+  phoneContainer.style.transform = "scale(1)";
+  phoneContainer.style.transformOrigin = "center";
+  bgImageContainer.style.transform = "none";
+  zoomSlider.value = 100;
+  zoomValue.textContent = "100%";
+}
+
+/* ===================== UPDATE FUNCTIONS ===================== */
 function updateTime() {
-  const mins = Math.floor(timeLeft / 60);
-  const secs = (timeLeft % 60).toString().padStart(2, "0");
-  expiryText.textContent = `Expires in ${mins}:${secs}`;
-}
-
-function updateExpiryStyle() {
-  expiryText.style.top = expiryTop + "px";
-  expiryText.style.fontSize = expiryFontSize + "px";
-  expiryText.style.fontWeight = expiryFontWeight;
-  expiryTopValue.textContent = expiryTop + "px";
-  expiryFontSizeValue.textContent = expiryFontSize + "px";
-  expiryFontWeightValue.textContent = expiryFontWeight;
-}
-
-function updateMiddleNumberStyle() {
-  middleNumber.style.top = middleNumTop + "px";
-  middleNumber.style.left = middleNumLeft + "%";
-  middleNumber.style.fontSize = middleNumFontSize + "px";
-  middleNumber.style.fontWeight = middleNumFontWeight;
-  middleNumTopValue.textContent = middleNumTop + "px";
-  middleNumLeftValue.textContent = middleNumLeft + "%";
-  middleNumFontSizeValue.textContent = middleNumFontSize + "px";
-  middleNumFontWeightValue.textContent = middleNumFontWeight;
+  const m = Math.floor(timeLeft / 60);
+  const s = String(timeLeft % 60).padStart(2, "0");
+  expiryText.textContent = `Expires in ${m}:${s}`;
 }
 
 function updateRing() {
@@ -516,12 +494,6 @@ function updateRing() {
   qrRing.style.borderWidth = qrBorderWidth + "px";
   qrRing.style.borderRadius = qrBorderRadius + "px";
   qrRing.style.borderColor = qrBgColor;
-
-  qrTopValue.textContent = qrTop + "px";
-  qrLeftValue.textContent = qrLeft + "%";
-  qrSizeValue.textContent = qrSize + "px";
-  qrBorderWidthValue.textContent = qrBorderWidth + "px";
-  qrBorderRadiusValue.textContent = qrBorderRadius + "px";
 }
 
 function updateBars() {
@@ -529,119 +501,67 @@ function updateBars() {
   colorBars.style.left = barsLeft + "%";
   colorBars.style.width = barsWidth + "px";
   colorBars.style.height = barsHeight + "px";
-
-  bar1.style.backgroundColor = bar1Color;
-  bar2.style.backgroundColor = bar2Color;
-  bar3.style.backgroundColor = bar3Color;
-
-  barsTopValue.textContent = barsTop + "px";
-  barsLeftValue.textContent = barsLeft + "%";
-  barsWidthValue.textContent = barsWidth + "px";
-  barsHeightValue.textContent = barsHeight + "px";
+  bar1.style.background = bar1Color;
+  bar2.style.background = bar2Color;
+  bar3.style.background = bar3Color;
 }
 
-/* ——— BLINK LOGIC ——— */
-function applyBlinkState() {
-  const op = barsVisible ? "1" : "0";
-  bar1.style.opacity = op;
-  bar2.style.opacity = op;
-  bar3.style.opacity = op;
+function updateMiddle() {
+  middleNumber.style.top = middleNumTop + "px";
+  middleNumber.style.left = middleNumLeft + "%";
+  middleNumber.style.fontSize = middleNumFontSize + "px";
+  middleNumber.style.fontWeight = middleNumFontWeight;
+}
+
+/* ===================== BLINK ===================== */
+function applyBlink() {
+  const o = barsVisible ? "1" : "0";
+  bar1.style.opacity = o;
+  bar2.style.opacity = o;
+  bar3.style.opacity = o;
 }
 
 function startBlinking() {
-  if (blinkIntervalId) clearInterval(blinkIntervalId);
+  clearInterval(blinkIntervalId);
   if (!blinkEnabled) {
     barsVisible = true;
-    applyBlinkState();
+    applyBlink();
     return;
   }
-  barsVisible = true;
-  applyBlinkState();
   blinkIntervalId = setInterval(() => {
     barsVisible = !barsVisible;
-    applyBlinkState();
+    applyBlink();
   }, blinkSpeed);
 }
 
-/* ——— TOGGLE: 30-MIN EXPIRY ——— */
-expiry30Toggle.onchange = e => {
-  expiryDuration = e.target.checked ? 1800 : 3600;
-  timeLeft = expiryDuration;
-  updateTime();
-};
-
-/* ——— EVENT LISTENERS ——— */
-qrTopSlider.oninput = e => { qrTop = +e.target.value; updateRing(); };
-qrLeftSlider.oninput = e => { qrLeft = +e.target.value; updateRing(); };
-qrSizeSlider.oninput = e => { qrSize = +e.target.value; updateRing(); };
-qrBorderWidthSlider.oninput = e => { qrBorderWidth = +e.target.value; updateRing(); };
-qrBorderRadiusSlider.oninput = e => { qrBorderRadius = +e.target.value; updateRing(); };
-
-barsTopSlider.oninput = e => { barsTop = +e.target.value; updateBars(); };
-barsLeftSlider.oninput = e => { barsLeft = +e.target.value; updateBars(); };
-barsWidthSlider.oninput = e => { barsWidth = +e.target.value; updateBars(); };
-barsHeightSlider.oninput = e => { barsHeight = +e.target.value; updateBars(); };
-
-expiryTopSlider.oninput = e => { expiryTop = +e.target.value; updateExpiryStyle(); };
-expiryFontSizeSlider.oninput = e => { expiryFontSize = +e.target.value; updateExpiryStyle(); };
-expiryFontWeightSlider.oninput = e => { expiryFontWeight = +e.target.value; updateExpiryStyle(); };
-
-blinkEnabledToggle.onchange = e => { blinkEnabled = e.target.checked; startBlinking(); };
-blinkSpeedSlider.oninput = e => { blinkSpeed = +e.target.value; blinkSpeedValue.textContent = blinkSpeed + " ms"; if (blinkEnabled) startBlinking(); };
-
-qrBgColorInput.oninput = e => { qrBgColor = e.target.value; updateRing(); };
-bar1ColorInput.oninput = e => { bar1Color = e.target.value; updateBars(); };
-bar2ColorInput.oninput = e => { bar2Color = e.target.value; updateBars(); };
-bar3ColorInput.oninput = e => { bar3Color = e.target.value; updateBars(); };
-
-middleNumTopSlider.oninput = e => { middleNumTop = +e.target.value; updateMiddleNumberStyle(); };
-middleNumLeftSlider.oninput = e => { middleNumLeft = +e.target.value; updateMiddleNumberStyle(); };
-middleNumFontSizeSlider.oninput = e => { middleNumFontSize = +e.target.value; updateMiddleNumberStyle(); };
-middleNumFontWeightSlider.oninput = e => { middleNumFontWeight = +e.target.value; updateMiddleNumberStyle(); };
-
+/* ===================== EVENTS ===================== */
 middleNumber.onclick = () => {
   middleNumValue = (middleNumValue + 1) % 10;
   middleNumber.textContent = middleNumValue;
 };
 
-// Zoom feature: scale both phone layout and background
-zoomSlider.oninput = e => {
-  const scale = e.target.value / 100;
-  const phoneContainer = qrRing.parentElement;
-  phoneContainer.style.transform = `scale(${scale})`;
-  phoneContainer.style.transformOrigin = "center";
-  bgImageContainer.style.transform = `scale(${scale})`;
-  bgImageContainer.style.transformOrigin = "center";
-  zoomValue.textContent = e.target.value + "%";
-};
-
-// Click expiry text: toggle bg1 <-> bg2 and reset timer to 30 min
 expiryText.onclick = () => {
-  if (currentBgIndex === 1) {
-    bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_2})`;
-    currentBgIndex = 2;
-  } else {
-    bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_1})`;
-    currentBgIndex = 1;
-  }
-
+  setBackground(currentBgIndex === 1 ? BG_IMAGE_2 : BG_IMAGE_1);
+  currentBgIndex = currentBgIndex === 1 ? 2 : 1;
   expiryDuration = 1800;
   timeLeft = 1800;
   expiry30Toggle.checked = true;
   updateTime();
 };
 
-/* ——— INITIALIZE ——— */
-bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_1})`;
-bgImageContainer.style.backgroundColor = "transparent";
+zoomSlider.oninput = () => autoPerfectAlign();
 
+window.addEventListener("resize", autoPerfectAlign);
+
+/* ===================== INIT ===================== */
+setBackground(BG_IMAGE_1);
 updateRing();
 updateBars();
-updateExpiryStyle();
-updateMiddleNumberStyle();
+updateMiddle();
 updateTime();
-applyBlinkState();
+applyBlink();
 startBlinking();
+autoPerfectAlign();
 
 setInterval(() => {
   if (timeLeft > 0) {
