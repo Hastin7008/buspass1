@@ -2,202 +2,142 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>TicketUI – Reliable Color Picker</title>
+<title>TicketUI – Mobile Safe Color Picker</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
-                 "SF Pro Display", system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui;
   }
-  #colorPicker {
+  .color-fab {
     position: absolute;
-    opacity: 0;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    border: 2px solid white;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
     z-index: 9999;
-    pointer-events: auto;
   }
 </style>
 </head>
 
-<body class="w-full h-screen flex bg-[#1797D0]">
+<body class="w-full h-screen bg-[#1797D0] flex items-center justify-center">
 
-<div class="flex-1 flex items-center justify-center relative overflow-hidden">
+<div class="relative w-[375px] h-[812px]">
 
-  <div id="bgImageContainer"
-       class="absolute inset-0 bg-no-repeat bg-center bg-contain"></div>
-
-  <!-- PHONE -->
-  <div class="relative w-[375px] h-[812px] z-10">
-
-    <!-- QR RING -->
-    <div id="qrRing"
-      class="absolute cursor-pointer"
-      style="
-        top:82px;
-        left:50%;
-        transform:translateX(-50%);
-        width:169px;
-        height:169px;
-        border:13px solid;
-        border-radius:16px;
-      ">
-    </div>
-
-    <!-- COLOR BARS -->
-    <div id="colorBars"
-      class="absolute flex"
-      style="
-        top:674px;
-        left:50%;
-        transform:translateX(-50%);
-        width:278px;
-        height:20px;
-      ">
-      <div id="bar1" class="flex-1 cursor-pointer"></div>
-      <div id="bar2" class="flex-1 cursor-pointer"></div>
-      <div id="bar3" class="flex-1 cursor-pointer"></div>
-    </div>
-
-    <!-- EXPIRY -->
-    <h3 id="expiryText"
-        class="absolute w-full text-center cursor-pointer select-none"
-        style="top:727px;font-size:21px;font-weight:600;">
-      Expires in 60:00
-    </h3>
-
-    <!-- MIDDLE NUMBER -->
-    <h1 id="middleNumber"
-        class="absolute w-full text-center cursor-pointer select-none"
-        style="top:309px;left:50%;transform:translateX(-50%);
-               font-size:56px;font-weight:800;">
-      2
-    </h1>
-
+  <!-- QR RING -->
+  <div id="qrRing"
+    class="absolute"
+    style="
+      top:82px;
+      left:50%;
+      transform:translateX(-50%);
+      width:169px;
+      height:169px;
+      border:13px solid #9CA3AF;
+      border-radius:16px;
+    ">
   </div>
+
+  <!-- COLOR BARS -->
+  <div id="bars"
+    class="absolute flex"
+    style="top:674px;left:50%;transform:translateX(-50%);
+           width:278px;height:20px;">
+    <div id="bar1" class="flex-1" style="background:#22C55E"></div>
+    <div id="bar2" class="flex-1" style="background:#EF4444"></div>
+    <div id="bar3" class="flex-1" style="background:#22C55E"></div>
+  </div>
+
+  <!-- MIDDLE NUMBER -->
+  <h1 id="num"
+    class="absolute w-full text-center"
+    style="top:309px;font-size:56px;font-weight:800;">
+    2
+  </h1>
 </div>
 
-<!-- REAL COLOR PICKER -->
-<input id="colorPicker" type="color" />
+<!-- SHARED COLOR PICKER -->
+<input id="picker" type="color" class="hidden" />
 
 <script>
-/* ===== DEFAULT COLORS (EDIT HERE) ===== */
+/* ===== STATE ===== */
 let ringColor = "#9CA3AF";
 let barColors = ["#22C55E", "#EF4444", "#22C55E"];
-let numberColor = "#000000";
+let numColor = "#000000";
 
-/* ===== STATE ===== */
-let expiryDuration = 3600;
-let timeLeft = expiryDuration;
-let currentBgIndex = 1;
-let middleValue = 2;
+const picker = document.getElementById("picker");
+
+/* ===== HELPER: CREATE FLOATING BUTTON ===== */
+function showColorFAB(target, color, onPick) {
+  document.querySelectorAll(".color-fab").forEach(e => e.remove());
+
+  const rect = target.getBoundingClientRect();
+  const fab = document.createElement("div");
+  fab.className = "color-fab";
+  fab.style.left = rect.right - 18 + "px";
+  fab.style.top = rect.top - 18 + "px";
+  fab.style.background = color;
+
+  fab.onclick = () => {
+    picker.value = color;
+    picker.oninput = e => {
+      fab.style.background = e.target.value;
+      onPick(e.target.value);
+    };
+    picker.click();
+  };
+
+  document.body.appendChild(fab);
+}
 
 /* ===== ELEMENTS ===== */
-const qrRing = document.getElementById("qrRing");
+const ring = document.getElementById("qrRing");
 const bar1 = document.getElementById("bar1");
 const bar2 = document.getElementById("bar2");
 const bar3 = document.getElementById("bar3");
-const middleNumber = document.getElementById("middleNumber");
-const expiryText = document.getElementById("expiryText");
-const bgImageContainer = document.getElementById("bgImageContainer");
-const picker = document.getElementById("colorPicker");
+const num = document.getElementById("num");
 
-/* ===== BACKGROUNDS ===== */
-const BG1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
-const BG2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
-
-/* ===== APPLY COLORS ===== */
-function applyColors() {
-  qrRing.style.borderColor = ringColor;
+/* ===== APPLY ===== */
+function apply() {
+  ring.style.borderColor = ringColor;
   bar1.style.background = barColors[0];
   bar2.style.background = barColors[1];
   bar3.style.background = barColors[2];
-  middleNumber.style.color = numberColor;
+  num.style.color = numColor;
 }
+apply();
 
-/* ===== SHOW COLOR PICKER AT CLICK ===== */
-function showPicker(e, currentColor, onChange) {
-  const rect = e.target.getBoundingClientRect();
-  picker.style.left = rect.left + "px";
-  picker.style.top = rect.top + "px";
-  picker.value = currentColor;
-
-  picker.oninput = ev => onChange(ev.target.value);
-  picker.click(); // now this WORKS
-}
-
-/* ===== BLINK (600ms) ===== */
-let visible = true;
-setInterval(() => {
-  visible = !visible;
-  const o = visible ? "1" : "0";
-  bar1.style.opacity = o;
-  bar2.style.opacity = o;
-  bar3.style.opacity = o;
-}, 600);
-
-/* ===== TIME ===== */
-function updateTime() {
-  const m = Math.floor(timeLeft / 60);
-  const s = String(timeLeft % 60).padStart(2, "0");
-  expiryText.textContent = `Expires in ${m}:${s}`;
-}
-
-/* ===== CLICK HANDLERS ===== */
-qrRing.onclick = e => showPicker(e, ringColor, c => {
-  ringColor = c;
-  applyColors();
-});
-
-bar1.onclick = e => showPicker(e, barColors[0], c => {
-  barColors[0] = c;
-  applyColors();
-});
-bar2.onclick = e => showPicker(e, barColors[1], c => {
-  barColors[1] = c;
-  applyColors();
-});
-bar3.onclick = e => showPicker(e, barColors[2], c => {
-  barColors[2] = c;
-  applyColors();
-});
-
-middleNumber.onclick = () => {
-  middleValue = (middleValue + 1) % 10;
-  middleNumber.textContent = middleValue;
-};
-
-middleNumber.oncontextmenu = e => {
-  e.preventDefault();
-  showPicker(e, numberColor, c => {
-    numberColor = c;
-    applyColors();
+/* ===== TAP HANDLERS ===== */
+ring.onclick = () =>
+  showColorFAB(ring, ringColor, c => {
+    ringColor = c;
+    apply();
   });
-};
 
-expiryText.onclick = () => {
-  expiryDuration = expiryDuration === 3600 ? 1800 : 3600;
-  timeLeft = expiryDuration;
+bar1.onclick = () =>
+  showColorFAB(bar1, barColors[0], c => {
+    barColors[0] = c;
+    apply();
+  });
 
-  bgImageContainer.style.backgroundImage =
-    currentBgIndex === 1 ? `url(${BG2})` : `url(${BG1})`;
-  currentBgIndex = currentBgIndex === 1 ? 2 : 1;
+bar2.onclick = () =>
+  showColorFAB(bar2, barColors[1], c => {
+    barColors[1] = c;
+    apply();
+  });
 
-  updateTime();
-};
+bar3.onclick = () =>
+  showColorFAB(bar3, barColors[2], c => {
+    barColors[2] = c;
+    apply();
+  });
 
-/* ===== INIT ===== */
-bgImageContainer.style.backgroundImage = `url(${BG1})`;
-applyColors();
-updateTime();
-
-setInterval(() => {
-  if (timeLeft > 0) {
-    timeLeft--;
-    updateTime();
-  }
-}, 1000);
+num.onclick = () =>
+  showColorFAB(num, numColor, c => {
+    numColor = c;
+    apply();
+  });
 </script>
 
 </body>
