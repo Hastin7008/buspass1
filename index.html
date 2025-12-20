@@ -5,12 +5,13 @@
 <title>TicketUI – FULL Mobile Safe Version</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <style>
   body {
     font-family: -apple-system, BlinkMacSystemFont, system-ui;
   }
 
-  /* Invisible but REAL color input */
+  /* Invisible but REAL color input (mobile-safe) */
   .color-input {
     position: absolute;
     inset: 0;
@@ -95,13 +96,13 @@
 
 <script>
 /* =====================================================
-   DEFAULTS – CHANGE COLORS HERE
+   DEFAULT CONFIG  ⭐ CHANGE COLORS HERE ⭐
 ===================================================== */
 const DEFAULT_RING_COLOR = "#9CA3AF";
 const DEFAULT_BAR_COLORS = ["#22C55E", "#EF4444", "#22C55E"];
 
 /* =====================================================
-   STATE
+   STATE (initialized from defaults)
 ===================================================== */
 let ringColor = DEFAULT_RING_COLOR;
 let barColors = [...DEFAULT_BAR_COLORS];
@@ -139,7 +140,7 @@ function applyColors() {
 }
 
 /* =====================================================
-   COLOR HANDLERS (MOBILE SAFE)
+   COLOR HANDLERS (mobile safe)
 ===================================================== */
 function setRingColor(color) {
   ringColor = color;
