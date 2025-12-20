@@ -307,12 +307,13 @@
 
     <!-- background (NO STRETCH, NO CROP) -->
     <div id="bgImageContainer"
-         class="absolute inset-0 bg-no-repeat bg-center"
-         style="
-           background-color:#1797D0;
-           background-size:contain;
-         ">
-    </div>
+     class="absolute inset-0 bg-no-repeat bg-center"
+     style="
+       background-color:#1797D0;
+       background-size:cover; /* ✅ FILL ENTIRE SCREEN */
+     ">
+</div>
+
 
     <button id="openSettingsBtn"
       aria-label="Open settings"
