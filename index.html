@@ -5,10 +5,10 @@
 <title>TicketUI – Ring Zoom + OK Apply</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <style>
   body {
     font-family: -apple-system, BlinkMacSystemFont, system-ui;
-    overflow: hidden;
   }
 
   /* Mobile-safe real color input */
@@ -23,17 +23,17 @@
 </style>
 </head>
 
-<body class="w-full h-screen bg-[#1797D0] overflow-hidden">
+<body class="w-full min-h-screen bg-[#1797D0]">
 
 <!-- CENTER STAGE -->
-<div class="w-full h-full flex items-center justify-center relative overflow-hidden">
+<div class="w-full min-h-screen flex items-center justify-center relative">
 
   <!-- ✅ TICKET GROUP: background + all elements share SAME coordinate system -->
   <div id="ticketGroup"
        class="relative w-[375px] h-[812px] origin-center"
        style="transform: scale(1);">
 
-    <!-- BACKGROUND INSIDE PHONE FRAME (so it aligns perfectly) -->
+    <!-- BACKGROUND INSIDE PHONE FRAME -->
     <div id="bgImageContainer"
          class="absolute inset-0"
          style="
@@ -60,7 +60,7 @@
         onchange="setRingColor(this.value)" />
     </div>
 
-    <!-- ✅ OK + RING ZOOM (only affects ring until OK pressed) -->
+    <!-- OK + RING ZOOM -->
     <div class="absolute"
       style="
         top:610px;
@@ -131,7 +131,7 @@
 
 <script>
 /* =====================================================
-   DEFAULTS (EDIT HERE)
+   DEFAULTS
 ===================================================== */
 const DEFAULT_RING_COLOR = "#9CA3AF";
 const DEFAULT_BAR_COLORS = ["#22C55E", "#EF4444", "#22C55E"];
@@ -147,10 +147,7 @@ let expiryDuration = 3600;
 let timeLeft = expiryDuration;
 let currentBgIndex = 1;
 
-// Ring-only scale (before OK)
 let ringScale = 1;
-
-// Whole-ticket scale (after OK)
 let ticketScale = 1;
 
 /* =====================================================
@@ -186,22 +183,18 @@ function applyColors() {
 }
 
 /* =====================================================
-   RING TRANSFORM (ring zoom only)
+   ZOOM FUNCTIONS
 ===================================================== */
 function applyRingZoomOnly() {
-  // Keep translateX(-50%) and add scale
   qrRing.style.transform = `translateX(-50%) scale(${ringScale})`;
 }
 
-/* =====================================================
-   TICKET TRANSFORM (whole ticket zoom)
-===================================================== */
 function applyTicketZoom() {
   ticketGroup.style.transform = `scale(${ticketScale})`;
 }
 
 /* =====================================================
-   COLOR HANDLERS (MOBILE SAFE)
+   COLOR HANDLERS
 ===================================================== */
 function setRingColor(color) {
   ringColor = color;
@@ -214,7 +207,7 @@ function setBarColor(index, color) {
 }
 
 /* =====================================================
-   BLINK – FIXED 600ms
+   BLINK
 ===================================================== */
 let visible = true;
 setInterval(() => {
@@ -258,24 +251,16 @@ expiryText.onclick = () => {
   updateTime();
 };
 
-/* =====================================================
-   RING ZOOM SLIDER (only ring)
-===================================================== */
 ringZoomSlider.oninput = e => {
-  ringScale = (Number(e.target.value) / 100);
+  ringScale = e.target.value / 100;
   ringZoomValue.textContent = `${e.target.value}%`;
   applyRingZoomOnly();
 };
 
-/* =====================================================
-   OK BUTTON: apply ring zoom to entire ticket
-===================================================== */
 applyOkBtn.onclick = () => {
-  // Apply current ringScale to the whole ticket
   ticketScale = ringScale;
   applyTicketZoom();
 
-  // Reset ring-only zoom so it doesn't double-scale
   ringScale = 1;
   ringZoomSlider.value = 100;
   ringZoomValue.textContent = "100%";
