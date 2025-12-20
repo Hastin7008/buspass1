@@ -2,142 +2,206 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>TicketUI – Mobile Safe Color Picker</title>
+<title>TicketUI – FULL Mobile Safe Version</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
   body {
     font-family: -apple-system, BlinkMacSystemFont, system-ui;
   }
-  .color-fab {
+
+  /* Invisible but REAL color input */
+  .color-input {
     position: absolute;
-    width: 36px;
-    height: 36px;
-    border-radius: 9999px;
-    border: 2px solid white;
-    box-shadow: 0 4px 12px rgba(0,0,0,.25);
-    z-index: 9999;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
   }
 </style>
 </head>
 
-<body class="w-full h-screen bg-[#1797D0] flex items-center justify-center">
+<body class="w-full h-screen flex bg-[#1797D0]">
 
-<div class="relative w-[375px] h-[812px]">
+<div class="flex-1 flex items-center justify-center relative overflow-hidden">
 
-  <!-- QR RING -->
-  <div id="qrRing"
-    class="absolute"
-    style="
-      top:82px;
-      left:50%;
-      transform:translateX(-50%);
-      width:169px;
-      height:169px;
-      border:13px solid #9CA3AF;
-      border-radius:16px;
-    ">
+  <!-- BACKGROUND -->
+  <div id="bgImageContainer"
+       class="absolute inset-0 bg-no-repeat bg-center bg-contain"></div>
+
+  <!-- PHONE -->
+  <div class="relative w-[375px] h-[812px] z-10">
+
+    <!-- QR RING -->
+    <div id="qrRing"
+      class="absolute"
+      style="
+        top:82px;
+        left:50%;
+        transform:translateX(-50%);
+        width:169px;
+        height:169px;
+        border-radius:16px;
+        border:13px solid;
+        position:relative;
+      ">
+      <input type="color" class="color-input"
+        onchange="setRingColor(this.value)" />
+    </div>
+
+    <!-- COLOR BARS -->
+    <div class="absolute flex"
+      style="
+        top:674px;
+        left:50%;
+        transform:translateX(-50%);
+        width:278px;
+        height:20px;
+      ">
+
+      <div id="bar1" class="flex-1 relative">
+        <input type="color" class="color-input"
+          onchange="setBarColor(0, this.value)" />
+      </div>
+
+      <div id="bar2" class="flex-1 relative">
+        <input type="color" class="color-input"
+          onchange="setBarColor(1, this.value)" />
+      </div>
+
+      <div id="bar3" class="flex-1 relative">
+        <input type="color" class="color-input"
+          onchange="setBarColor(2, this.value)" />
+      </div>
+    </div>
+
+    <!-- EXPIRY -->
+    <h3 id="expiryText"
+      class="absolute w-full text-center cursor-pointer select-none"
+      style="top:727px;font-size:21px;font-weight:600;">
+      Expires in 60:00
+    </h3>
+
+    <!-- MIDDLE NUMBER -->
+    <h1 id="middleNumber"
+      class="absolute w-full text-center cursor-pointer select-none"
+      style="top:309px;font-size:56px;font-weight:800;">
+      2
+    </h1>
+
   </div>
-
-  <!-- COLOR BARS -->
-  <div id="bars"
-    class="absolute flex"
-    style="top:674px;left:50%;transform:translateX(-50%);
-           width:278px;height:20px;">
-    <div id="bar1" class="flex-1" style="background:#22C55E"></div>
-    <div id="bar2" class="flex-1" style="background:#EF4444"></div>
-    <div id="bar3" class="flex-1" style="background:#22C55E"></div>
-  </div>
-
-  <!-- MIDDLE NUMBER -->
-  <h1 id="num"
-    class="absolute w-full text-center"
-    style="top:309px;font-size:56px;font-weight:800;">
-    2
-  </h1>
 </div>
 
-<!-- SHARED COLOR PICKER -->
-<input id="picker" type="color" class="hidden" />
-
 <script>
-/* ===== STATE ===== */
-let ringColor = "#9CA3AF";
-let barColors = ["#22C55E", "#EF4444", "#22C55E"];
-let numColor = "#000000";
+/* =====================================================
+   DEFAULTS – CHANGE COLORS HERE
+===================================================== */
+const DEFAULT_RING_COLOR = "#9CA3AF";
+const DEFAULT_BAR_COLORS = ["#22C55E", "#EF4444", "#22C55E"];
 
-const picker = document.getElementById("picker");
+/* =====================================================
+   STATE
+===================================================== */
+let ringColor = DEFAULT_RING_COLOR;
+let barColors = [...DEFAULT_BAR_COLORS];
+let middleValue = 2;
 
-/* ===== HELPER: CREATE FLOATING BUTTON ===== */
-function showColorFAB(target, color, onPick) {
-  document.querySelectorAll(".color-fab").forEach(e => e.remove());
+let expiryDuration = 3600;
+let timeLeft = expiryDuration;
+let currentBgIndex = 1;
 
-  const rect = target.getBoundingClientRect();
-  const fab = document.createElement("div");
-  fab.className = "color-fab";
-  fab.style.left = rect.right - 18 + "px";
-  fab.style.top = rect.top - 18 + "px";
-  fab.style.background = color;
+/* =====================================================
+   ELEMENTS
+===================================================== */
+const qrRing = document.getElementById("qrRing");
+const bars = [
+  document.getElementById("bar1"),
+  document.getElementById("bar2"),
+  document.getElementById("bar3")
+];
+const expiryText = document.getElementById("expiryText");
+const middleNumber = document.getElementById("middleNumber");
+const bgImageContainer = document.getElementById("bgImageContainer");
 
-  fab.onclick = () => {
-    picker.value = color;
-    picker.oninput = e => {
-      fab.style.background = e.target.value;
-      onPick(e.target.value);
-    };
-    picker.click();
-  };
+/* =====================================================
+   BACKGROUNDS
+===================================================== */
+const BG1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
+const BG2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
 
-  document.body.appendChild(fab);
+/* =====================================================
+   APPLY COLORS
+===================================================== */
+function applyColors() {
+  qrRing.style.borderColor = ringColor;
+  bars.forEach((b, i) => b.style.background = barColors[i]);
 }
 
-/* ===== ELEMENTS ===== */
-const ring = document.getElementById("qrRing");
-const bar1 = document.getElementById("bar1");
-const bar2 = document.getElementById("bar2");
-const bar3 = document.getElementById("bar3");
-const num = document.getElementById("num");
-
-/* ===== APPLY ===== */
-function apply() {
-  ring.style.borderColor = ringColor;
-  bar1.style.background = barColors[0];
-  bar2.style.background = barColors[1];
-  bar3.style.background = barColors[2];
-  num.style.color = numColor;
+/* =====================================================
+   COLOR HANDLERS (MOBILE SAFE)
+===================================================== */
+function setRingColor(color) {
+  ringColor = color;
+  applyColors();
 }
-apply();
 
-/* ===== TAP HANDLERS ===== */
-ring.onclick = () =>
-  showColorFAB(ring, ringColor, c => {
-    ringColor = c;
-    apply();
-  });
+function setBarColor(index, color) {
+  barColors[index] = color;
+  applyColors();
+}
 
-bar1.onclick = () =>
-  showColorFAB(bar1, barColors[0], c => {
-    barColors[0] = c;
-    apply();
-  });
+/* =====================================================
+   BLINK – FIXED 600ms
+===================================================== */
+let visible = true;
+setInterval(() => {
+  visible = !visible;
+  const o = visible ? "1" : "0";
+  bars.forEach(b => b.style.opacity = o);
+}, 600);
 
-bar2.onclick = () =>
-  showColorFAB(bar2, barColors[1], c => {
-    barColors[1] = c;
-    apply();
-  });
+/* =====================================================
+   TIME
+===================================================== */
+function updateTime() {
+  const m = Math.floor(timeLeft / 60);
+  const s = String(timeLeft % 60).padStart(2, "0");
+  expiryText.textContent = `Expires in ${m}:${s}`;
+}
 
-bar3.onclick = () =>
-  showColorFAB(bar3, barColors[2], c => {
-    barColors[2] = c;
-    apply();
-  });
+setInterval(() => {
+  if (timeLeft > 0) {
+    timeLeft--;
+    updateTime();
+  }
+}, 1000);
 
-num.onclick = () =>
-  showColorFAB(num, numColor, c => {
-    numColor = c;
-    apply();
-  });
+/* =====================================================
+   INTERACTIONS
+===================================================== */
+middleNumber.onclick = () => {
+  middleValue = (middleValue + 1) % 10;
+  middleNumber.textContent = middleValue;
+};
+
+expiryText.onclick = () => {
+  expiryDuration = expiryDuration === 3600 ? 1800 : 3600;
+  timeLeft = expiryDuration;
+
+  bgImageContainer.style.backgroundImage =
+    currentBgIndex === 1 ? `url(${BG2})` : `url(${BG1})`;
+  currentBgIndex = currentBgIndex === 1 ? 2 : 1;
+
+  updateTime();
+};
+
+/* =====================================================
+   INIT
+===================================================== */
+bgImageContainer.style.backgroundImage = `url(${BG1})`;
+applyColors();
+updateTime();
 </script>
 
 </body>
