@@ -288,17 +288,11 @@
 <!-- PREVIEW PANEL -->
 <div class="flex-1 flex items-center justify-center overflow-hidden relative">
 
-  <!-- FULLSCREEN BACKGROUND (CENTERED & COVERED) -->
   <div id="bgImageContainer"
-       class="absolute inset-0 bg-no-repeat"
-       style="
-         background-color:#1797D0;
-         background-size: cover;
-         background-position: center center;
-       ">
+       class="absolute inset-0 bg-no-repeat bg-center bg-cover"
+       style="background-color:#1797D0;">
   </div>
 
-  <!-- SETTINGS BUTTON -->
   <button id="openSettingsBtn"
     aria-label="Open settings"
     class="absolute top-4 right-4 z-50"
@@ -314,64 +308,65 @@
     ⚙️
   </button>
 
-  <!-- PHONE -->
-  <div id="phoneContainer"
-       class="relative w-[375px] h-[812px] pointer-events-auto">
+</div>
 
-    <div id="qrRing" class="absolute"
-      style="
-        top:82px;
-        left:50%;
-        transform:translateX(-50%);
-        width:169px;
-        height:169px;
-        border-width:13px;
-        border-style:solid;
-        border-color:#9CA3AF;
-        border-radius:16px;
-      ">
-    </div>
+    <!-- PHONE -->
+    <div class="relative w-[375px] h-[812px] pointer-events-auto">
 
-    <div id="colorBars" class="absolute flex"
-      style="
-        top:674px;
-        left:50%;
-        transform:translateX(-50%);
-        width:278px;
-        height:20px;
-      ">
-      <div id="bar1" style="flex:1;background:#22C55E;"></div>
-      <div id="bar2" style="flex:1;background:#EF4444;"></div>
-      <div id="bar3" style="flex:1;background:#22C55E;"></div>
-    </div>
-
-    <h3 id="expiryText"
-        class="absolute w-full text-center cursor-pointer"
+      <div id="qrRing" class="absolute"
         style="
-          top:727px;
-          color:black;
-          font-size:21px;
-          font-weight:600;
-        ">
-      Expires in 60:00
-    </h3>
-
-    <h1 id="middleNumber"
-        class="absolute w-full text-center select-none"
-        style="
-          top:309px;
+          top:82px;
           left:50%;
           transform:translateX(-50%);
-          color:black;
-          font-size:56px;
-          font-weight:800;
-          cursor:pointer;
+          width:169px;
+          height:169px;
+          border-width:13px;
+          border-style:solid;
+          border-color:#9CA3AF;
+          border-radius:16px;
         ">
-      2
-    </h1>
+      </div>
 
+      <div id="colorBars" class="absolute flex"
+        style="
+          top:674px;
+          left:50%;
+          transform:translateX(-50%);
+          width:278px;
+          height:20px;
+        ">
+        <div id="bar1" style="flex:1;background:#22C55E;"></div>
+        <div id="bar2" style="flex:1;background:#EF4444;"></div>
+        <div id="bar3" style="flex:1;background:#22C55E;"></div>
+      </div>
+
+      <h3 id="expiryText"
+          class="absolute w-full text-center cursor-pointer"
+          style="
+            top:727px;
+            color:black;
+            font-size:21px;
+            font-weight:600;
+          ">
+        Expires in 60:00
+      </h3>
+
+      <h1 id="middleNumber"
+          class="absolute w-full text-center select-none"
+          style="
+            top:309px;
+            left:50%;
+            transform:translateX(-50%);
+            color:black;
+            font-size:56px;
+            font-weight:800;
+            cursor:pointer;
+          ">
+        2
+      </h1>
+
+    </div>
   </div>
-</div>
 
 <script>
 /* ——— STATE ——— */
