@@ -4,11 +4,19 @@
   <meta charset="UTF-8" />
   <title>TicketUI – Pure HTML + JS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 🔒 lock zoom on mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
                    "SF Pro Display", system-ui, sans-serif;
+    }
+
+    /* 🔒 Prevent touch zoom gestures (still allows taps/clicks) */
+    #phoneContainer {
+      touch-action: manipulation;
     }
   </style>
 </head>
@@ -32,7 +40,7 @@
     <!-- MAIN SETTINGS CONTENT -->
     <div class="p-4 overflow-y-auto flex-1">
 
-      <!-- Zoom Controls -->
+      <!-- Zoom Controls (kept, but locked to 100%) -->
       <div class="bg-gray-200 p-4 rounded-lg mb-4">
         <h3 class="font-bold mb-3 text-black">🔍 Zoom</h3>
         <div>
@@ -41,6 +49,9 @@
             <span id="zoomValue" class="text-xs bg-white px-2 py-1 rounded">100%</span>
           </div>
           <input id="zoomSlider" type="range" min="0" max="100" value="100" class="w-full" />
+          <p class="text-[11px] text-gray-600 mt-2">
+            Zoom is locked for perfect alignment.
+          </p>
         </div>
       </div>
 
@@ -288,9 +299,14 @@
   <!-- PREVIEW PANEL -->
   <div class="flex-1 flex items-center justify-center overflow-hidden relative">
 
+    <!-- background (NO STRETCH, NO CROP) -->
     <div id="bgImageContainer"
-         class="absolute inset-0 bg-no-repeat bg-center bg-contain"
-         style="background-color:#1797D0;"></div>
+         class="absolute inset-0 bg-no-repeat bg-center"
+         style="
+           background-color:#1797D0;
+           background-size:contain; /* show FULL image (no crop) */
+         ">
+    </div>
 
     <button id="openSettingsBtn"
       aria-label="Open settings"
@@ -308,7 +324,7 @@
     </button>
 
     <!-- PHONE -->
-    <div class="relative w-[375px] h-[812px] pointer-events-auto">
+    <div id="phoneContainer" class="relative w-[375px] h-[812px] pointer-events-auto">
 
       <div id="qrRing" class="absolute"
         style="
@@ -413,6 +429,8 @@ const openSettingsBtn = document.getElementById("openSettingsBtn");
 const closeSettingsBtn = document.getElementById("closeSettingsBtn");
 const settingsPanel = document.getElementById("settingsPanel");
 
+const phoneContainer = document.getElementById("phoneContainer");
+
 const qrRing = document.getElementById("qrRing");
 const colorBars = document.getElementById("colorBars");
 
@@ -475,8 +493,50 @@ const zoomSlider = document.getElementById("zoomSlider");
 const zoomValue = document.getElementById("zoomValue");
 
 /* ——— SETTINGS PANEL ——— */
-openSettingsBtn.onclick = () => settingsPanel.style.display = "block";
-closeSettingsBtn.onclick = () => settingsPanel.style.display = "none";
+openSettingsBtn.onclick = () => { settingsPanel.style.display = "block"; };
+closeSettingsBtn.onclick = () => { settingsPanel.style.display = "none"; };
+
+/* ——— HARD BLOCK BROWSER ZOOM (desktop ctrl+wheel / trackpad) ——— */
+window.addEventListener("wheel", (e) => {
+  if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+
+window.addEventListener("keydown", (e) => {
+  const key = e.key.toLowerCase();
+  if ((e.ctrlKey || e.metaKey) && (key === "+" || key === "-" || key === "=" || key === "0")) {
+    e.preventDefault();
+  }
+});
+
+/* ——— BACKGROUND SETTER (auto-align after image loads) ——— */
+function setBackground(url) {
+  const img = new Image();
+  img.onload = () => {
+    bgImageContainer.style.backgroundImage = `url(${url})`;
+    bgImageContainer.style.backgroundColor = "transparent";
+    autoPerfectAlign(); // ✅ always perfect after any bg change
+  };
+  img.onerror = () => {
+    // fallback: still set, but keep color so you can see something
+    bgImageContainer.style.backgroundImage = `url(${url})`;
+    bgImageContainer.style.backgroundColor = "#1797D0";
+    autoPerfectAlign();
+  };
+  img.src = url;
+}
+
+/* ——— AUTO PERFECT ALIGN (no double-click needed) ——— */
+function autoPerfectAlign() {
+  // Always lock to 100% and remove any transforms
+  phoneContainer.style.transform = "scale(1)";
+  phoneContainer.style.transformOrigin = "center";
+
+  bgImageContainer.style.transform = "none";
+  bgImageContainer.style.transformOrigin = "center";
+
+  zoomSlider.value = 100;
+  zoomValue.textContent = "100%";
+}
 
 /* ——— UPDATE FUNCTIONS ——— */
 function updateTime() {
@@ -584,7 +644,11 @@ expiryFontSizeSlider.oninput = e => { expiryFontSize = +e.target.value; updateEx
 expiryFontWeightSlider.oninput = e => { expiryFontWeight = +e.target.value; updateExpiryStyle(); };
 
 blinkEnabledToggle.onchange = e => { blinkEnabled = e.target.checked; startBlinking(); };
-blinkSpeedSlider.oninput = e => { blinkSpeed = +e.target.value; blinkSpeedValue.textContent = blinkSpeed + " ms"; if (blinkEnabled) startBlinking(); };
+blinkSpeedSlider.oninput = e => {
+  blinkSpeed = +e.target.value;
+  blinkSpeedValue.textContent = blinkSpeed + " ms";
+  if (blinkEnabled) startBlinking();
+};
 
 qrBgColorInput.oninput = e => { qrBgColor = e.target.value; updateRing(); };
 bar1ColorInput.oninput = e => { bar1Color = e.target.value; updateBars(); };
@@ -601,24 +665,21 @@ middleNumber.onclick = () => {
   middleNumber.textContent = middleNumValue;
 };
 
-// Zoom feature: scale both phone layout and background
-zoomSlider.oninput = e => {
-  const scale = e.target.value / 100;
-  const phoneContainer = qrRing.parentElement;
-  phoneContainer.style.transform = `scale(${scale})`;
-  phoneContainer.style.transformOrigin = "center";
-  bgImageContainer.style.transform = `scale(${scale})`;
-  bgImageContainer.style.transformOrigin = "center";
-  zoomValue.textContent = e.target.value + "%";
+/* ——— ZOOM: LOCKED (no one can zoom in/out) ——— */
+zoomSlider.oninput = () => {
+  // always snap back to 100
+  zoomSlider.value = 100;
+  zoomValue.textContent = "100%";
+  autoPerfectAlign();
 };
 
-// Click expiry text: toggle bg1 <-> bg2 and reset timer to 30 min
+/* ——— Click expiry text: toggle bg1 <-> bg2 and reset timer to 30 min ——— */
 expiryText.onclick = () => {
   if (currentBgIndex === 1) {
-    bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_2})`;
+    setBackground(BG_IMAGE_2);
     currentBgIndex = 2;
   } else {
-    bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_1})`;
+    setBackground(BG_IMAGE_1);
     currentBgIndex = 1;
   }
 
@@ -628,9 +689,13 @@ expiryText.onclick = () => {
   updateTime();
 };
 
+/* ——— Keep perfect alignment on resize ——— */
+window.addEventListener("resize", () => {
+  autoPerfectAlign();
+});
+
 /* ——— INITIALIZE ——— */
-bgImageContainer.style.backgroundImage = `url(${BG_IMAGE_1})`;
-bgImageContainer.style.backgroundColor = "transparent";
+setBackground(BG_IMAGE_1); // loads bg1.jpg.jpg (your exact path)
 
 updateRing();
 updateBars();
@@ -639,6 +704,7 @@ updateMiddleNumberStyle();
 updateTime();
 applyBlinkState();
 startBlinking();
+autoPerfectAlign();
 
 setInterval(() => {
   if (timeLeft > 0) {
