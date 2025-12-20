@@ -2,13 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>TicketUI – Clean Click Color</title>
+<title>TicketUI – Reliable Color Picker</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
   body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
                  "SF Pro Display", system-ui, sans-serif;
+  }
+  #colorPicker {
+    position: absolute;
+    opacity: 0;
+    width: 32px;
+    height: 32px;
+    z-index: 9999;
+    pointer-events: auto;
   }
 </style>
 </head>
@@ -55,45 +63,31 @@
     <!-- EXPIRY -->
     <h3 id="expiryText"
         class="absolute w-full text-center cursor-pointer select-none"
-        style="
-          top:727px;
-          font-size:21px;
-          font-weight:600;
-          color:black;
-        ">
+        style="top:727px;font-size:21px;font-weight:600;">
       Expires in 60:00
     </h3>
 
     <!-- MIDDLE NUMBER -->
     <h1 id="middleNumber"
         class="absolute w-full text-center cursor-pointer select-none"
-        style="
-          top:309px;
-          left:50%;
-          transform:translateX(-50%);
-          font-size:56px;
-          font-weight:800;
-        ">
+        style="top:309px;left:50%;transform:translateX(-50%);
+               font-size:56px;font-weight:800;">
       2
     </h1>
 
   </div>
 </div>
 
-<!-- ONE REAL COLOR PICKER -->
-<input id="colorPicker" type="color" style="position:fixed;left:-9999px;" />
+<!-- REAL COLOR PICKER -->
+<input id="colorPicker" type="color" />
 
 <script>
-/* ===== DEFAULT COLORS (CHANGE HERE) ===== */
-let DEFAULT_RING_COLOR = "#9CA3AF";
-let DEFAULT_BAR_COLORS = ["#22C55E", "#EF4444", "#22C55E"];
-let DEFAULT_NUMBER_COLOR = "#000000";
+/* ===== DEFAULT COLORS (EDIT HERE) ===== */
+let ringColor = "#9CA3AF";
+let barColors = ["#22C55E", "#EF4444", "#22C55E"];
+let numberColor = "#000000";
 
 /* ===== STATE ===== */
-let ringColor = DEFAULT_RING_COLOR;
-let barColors = [...DEFAULT_BAR_COLORS];
-let numberColor = DEFAULT_NUMBER_COLOR;
-
 let expiryDuration = 3600;
 let timeLeft = expiryDuration;
 let currentBgIndex = 1;
@@ -122,14 +116,18 @@ function applyColors() {
   middleNumber.style.color = numberColor;
 }
 
-/* ===== COLOR PICKER HANDLER ===== */
-function pickColor(current, cb) {
-  picker.value = current;
-  picker.oninput = e => cb(e.target.value);
-  picker.click();
+/* ===== SHOW COLOR PICKER AT CLICK ===== */
+function showPicker(e, currentColor, onChange) {
+  const rect = e.target.getBoundingClientRect();
+  picker.style.left = rect.left + "px";
+  picker.style.top = rect.top + "px";
+  picker.value = currentColor;
+
+  picker.oninput = ev => onChange(ev.target.value);
+  picker.click(); // now this WORKS
 }
 
-/* ===== BLINK (600ms FIXED) ===== */
+/* ===== BLINK (600ms) ===== */
 let visible = true;
 setInterval(() => {
   visible = !visible;
@@ -146,21 +144,21 @@ function updateTime() {
   expiryText.textContent = `Expires in ${m}:${s}`;
 }
 
-/* ===== CLICK EVENTS ===== */
-qrRing.onclick = () => pickColor(ringColor, c => {
+/* ===== CLICK HANDLERS ===== */
+qrRing.onclick = e => showPicker(e, ringColor, c => {
   ringColor = c;
   applyColors();
 });
 
-bar1.onclick = () => pickColor(barColors[0], c => {
+bar1.onclick = e => showPicker(e, barColors[0], c => {
   barColors[0] = c;
   applyColors();
 });
-bar2.onclick = () => pickColor(barColors[1], c => {
+bar2.onclick = e => showPicker(e, barColors[1], c => {
   barColors[1] = c;
   applyColors();
 });
-bar3.onclick = () => pickColor(barColors[2], c => {
+bar3.onclick = e => showPicker(e, barColors[2], c => {
   barColors[2] = c;
   applyColors();
 });
@@ -172,7 +170,7 @@ middleNumber.onclick = () => {
 
 middleNumber.oncontextmenu = e => {
   e.preventDefault();
-  pickColor(numberColor, c => {
+  showPicker(e, numberColor, c => {
     numberColor = c;
     applyColors();
   });
