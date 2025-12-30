@@ -4,145 +4,84 @@
 <meta charset="UTF-8" />
 <title>TicketUI – FULL Mobile Safe Version</title>
 <script src="https://cdn.tailwindcss.com"></script>
-
-<!-- ✅ Important: viewport-fit + stop zoom issues -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, system-ui;
-    margin: 0;
-  }
-
-  /* ✅ Replace 100vh with a stable JS-driven height */
-  :root { --vh: 1vh; }
-
-  .appHeight {
-    height: calc(var(--vh) * 100);
-  }
-
-  /* Invisible but REAL color input (mobile-safe) */
-  .color-input {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, system-ui; }
+  .color-input{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
 </style>
 </head>
 
-<body class="w-full flex bg-[#1797D0] appHeight">
+<body class="w-full h-screen flex bg-[#1797D0]">
+<div class="flex-1 flex items-center justify-center relative overflow-hidden">
 
-<!-- ✅ changed: remove h-screen; use appHeight instead -->
-<div id="stage" class="flex-1 flex items-center justify-center relative overflow-hidden appHeight">
-
-  <!-- BACKGROUND -->
-  <div id="bgImageContainer"
-       class="absolute inset-0 bg-no-repeat bg-center bg-contain"></div>
+  <!-- ✅ Measurable image (contain) -->
+  <img id="bgImg"
+       class="absolute inset-0 w-full h-full object-contain object-center"
+       alt=""
+       draggable="false" />
 
   <!-- PHONE -->
-  <div class="relative w-[375px] h-[812px] z-10">
+  <div id="phone" class="relative w-[375px] h-[812px] z-10">
 
-    <!-- QR RING -->
-    <div id="qrRing"
-      class="absolute"
-      style="
-        top:82px;
-        left:50%;
-        transform:translateX(-50%);
-        width:169px;
-        height:169px;
-        border-radius:16px;
-        border:13px solid;
-        position:relative;
-      ">
-      <input type="color" class="color-input"
-        onchange="setRingColor(this.value)" />
+    <!-- ✅ This box will be resized to EXACT rendered image box -->
+    <div id="imageBox" class="absolute" style="left:0; top:0; width:0; height:0;">
+
+      <!-- QR RING (now positioned by % via JS) -->
+      <div id="qrRing" class="absolute" style="border-radius:16px;border:13px solid; position:absolute;">
+        <input type="color" class="color-input" onchange="setRingColor(this.value)" />
+      </div>
+
+      <!-- COLOR BARS -->
+      <div id="barsWrap" class="absolute flex">
+        <div id="bar1" class="flex-1 relative">
+          <input type="color" class="color-input" onchange="setBarColor(0, this.value)" />
+        </div>
+        <div id="bar2" class="flex-1 relative">
+          <input type="color" class="color-input" onchange="setBarColor(1, this.value)" />
+        </div>
+        <div id="bar3" class="flex-1 relative">
+          <input type="color" class="color-input" onchange="setBarColor(2, this.value)" />
+        </div>
+      </div>
+
+      <!-- EXPIRY -->
+      <h3 id="expiryText"
+        class="absolute w-full text-center cursor-pointer select-none"
+        style="font-size:21px;font-weight:600;">
+        Expires in 60:00
+      </h3>
+
+      <!-- MIDDLE NUMBER -->
+      <h1 id="middleNumber"
+        class="absolute w-full text-center cursor-pointer select-none"
+        style="font-size:56px;font-weight:800;">
+        2
+      </h1>
+
     </div>
-
-    <!-- COLOR BARS -->
-    <div class="absolute flex"
-      style="
-        top:674px;
-        left:50%;
-        transform:translateX(-50%);
-        width:278px;
-        height:20px;
-      ">
-
-      <div id="bar1" class="flex-1 relative">
-        <input type="color" class="color-input"
-          onchange="setBarColor(0, this.value)" />
-      </div>
-
-      <div id="bar2" class="flex-1 relative">
-        <input type="color" class="color-input"
-          onchange="setBarColor(1, this.value)" />
-      </div>
-
-      <div id="bar3" class="flex-1 relative">
-        <input type="color" class="color-input"
-          onchange="setBarColor(2, this.value)" />
-      </div>
-    </div>
-
-    <!-- EXPIRY -->
-    <h3 id="expiryText"
-      class="absolute w-full text-center cursor-pointer select-none"
-      style="top:727px;font-size:21px;font-weight:600;">
-      Expires in 60:00
-    </h3>
-
-    <!-- MIDDLE NUMBER -->
-    <h1 id="middleNumber"
-      class="absolute w-full text-center cursor-pointer select-none"
-      style="top:309px;font-size:56px;font-weight:800;">
-      2
-    </h1>
-
   </div>
 </div>
 
 <script>
 /* =====================================================
-   ✅ iOS FIX: Stable viewport height (Home Screen behavior)
+   DESIGN REFERENCE (your manual-perfect layout)
 ===================================================== */
-function setVH() {
-  // innerHeight is the “real” visible area, not unstable 100vh
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty("--vh", `${vh}px`);
-}
-
-// run several times because Safari changes height after first paint
-function stabilizeVH() {
-  setVH();
-  requestAnimationFrame(setVH);
-  setTimeout(setVH, 50);
-  setTimeout(setVH, 250);
-  setTimeout(setVH, 600);
-}
-
-window.addEventListener("load", stabilizeVH);
-window.addEventListener("resize", stabilizeVH);
-window.addEventListener("orientationchange", stabilizeVH);
-
-// visualViewport catches Safari bar show/hide (key for “opened from link”)
-if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", stabilizeVH);
-  window.visualViewport.addEventListener("scroll", stabilizeVH);
-}
+const DESIGN_W = 375;
+const DESIGN_H = 812;
 
 /* =====================================================
-   DEFAULT CONFIG  ⭐ CHANGE COLORS HERE ⭐
+   BACKGROUNDS
+===================================================== */
+const BG1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
+const BG2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
+
+/* =====================================================
+   DEFAULT CONFIG
 ===================================================== */
 const DEFAULT_RING_COLOR = "#FDC9D3";
 const DEFAULT_BAR_COLORS = ["#3D871D", "#B49CDA", "#81CE1E"];
 
-/* =====================================================
-   STATE (initialized from defaults)
-===================================================== */
 let ringColor = DEFAULT_RING_COLOR;
 let barColors = [...DEFAULT_BAR_COLORS];
 let middleValue = 2;
@@ -154,45 +93,111 @@ let currentBgIndex = 1;
 /* =====================================================
    ELEMENTS
 ===================================================== */
+const phone = document.getElementById("phone");
+const bgImg = document.getElementById("bgImg");
+const imageBox = document.getElementById("imageBox");
+
 const qrRing = document.getElementById("qrRing");
-const bars = [
-  document.getElementById("bar1"),
-  document.getElementById("bar2"),
-  document.getElementById("bar3")
-];
+const barsWrap = document.getElementById("barsWrap");
+const bars = [document.getElementById("bar1"), document.getElementById("bar2"), document.getElementById("bar3")];
+
 const expiryText = document.getElementById("expiryText");
 const middleNumber = document.getElementById("middleNumber");
-const bgImageContainer = document.getElementById("bgImageContainer");
 
 /* =====================================================
-   BACKGROUNDS
+   ✅ Your manual pixel positions (ONLY set once here)
 ===================================================== */
-const BG1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
-const BG2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
+const layout = {
+  qrRing:   { top: 82,  left: (DESIGN_W/2), w: 169, h: 169, centerX: true },
+  barsWrap: { top: 674, left: (DESIGN_W/2), w: 278, h: 20,  centerX: true },
+  expiry:   { top: 727 },
+  middle:   { top: 309 }
+};
 
 /* =====================================================
-   APPLY COLORS
+   ✅ Find the actual rendered "contain" image box inside phone
+===================================================== */
+function updateImageBox() {
+  const pw = phone.clientWidth;
+  const ph = phone.clientHeight;
+
+  // image natural ratio
+  const natW = bgImg.naturalWidth || 1;
+  const natH = bgImg.naturalHeight || 1;
+  const imgRatio = natW / natH;
+  const phoneRatio = pw / ph;
+
+  let drawW, drawH, offsetX, offsetY;
+
+  // object-contain logic
+  if (imgRatio > phoneRatio) {
+    // limited by width
+    drawW = pw;
+    drawH = pw / imgRatio;
+    offsetX = 0;
+    offsetY = (ph - drawH) / 2;
+  } else {
+    // limited by height
+    drawH = ph;
+    drawW = ph * imgRatio;
+    offsetY = 0;
+    offsetX = (pw - drawW) / 2;
+  }
+
+  imageBox.style.left = offsetX + "px";
+  imageBox.style.top = offsetY + "px";
+  imageBox.style.width = drawW + "px";
+  imageBox.style.height = drawH + "px";
+
+  // now place overlays relative to imageBox size
+  placeOverlays(drawW, drawH);
+}
+
+/* =====================================================
+   ✅ Convert your design px into % and apply to imageBox
+===================================================== */
+function placeOverlays(drawW, drawH) {
+  // QR ring
+  const qrTop = (layout.qrRing.top / DESIGN_H) * drawH;
+  const qrW   = (layout.qrRing.w   / DESIGN_W) * drawW;
+  const qrH   = (layout.qrRing.h   / DESIGN_H) * drawH;
+
+  qrRing.style.top = qrTop + "px";
+  qrRing.style.width = qrW + "px";
+  qrRing.style.height = qrH + "px";
+
+  // centerX behavior like your left:50% translateX(-50%)
+  qrRing.style.left = (drawW / 2) + "px";
+  qrRing.style.transform = "translateX(-50%)";
+
+  // Bars wrap
+  const bTop = (layout.barsWrap.top / DESIGN_H) * drawH;
+  const bW   = (layout.barsWrap.w   / DESIGN_W) * drawW;
+  const bH   = (layout.barsWrap.h   / DESIGN_H) * drawH;
+
+  barsWrap.style.top = bTop + "px";
+  barsWrap.style.width = bW + "px";
+  barsWrap.style.height = bH + "px";
+  barsWrap.style.left = (drawW / 2) + "px";
+  barsWrap.style.transform = "translateX(-50%)";
+
+  // Expiry + Middle (full width)
+  expiryText.style.top = ((layout.expiry.top / DESIGN_H) * drawH) + "px";
+  middleNumber.style.top = ((layout.middle.top / DESIGN_H) * drawH) + "px";
+}
+
+/* =====================================================
+   COLORS
 ===================================================== */
 function applyColors() {
   qrRing.style.borderColor = ringColor;
   bars.forEach((b, i) => b.style.background = barColors[i]);
 }
+function setRingColor(color){ ringColor = color; applyColors(); }
+function setBarColor(index, color){ barColors[index] = color; applyColors(); }
 
 /* =====================================================
-   COLOR HANDLERS (mobile safe)
-===================================================== */
-function setRingColor(color) {
-  ringColor = color;
-  applyColors();
-}
-
-function setBarColor(index, color) {
-  barColors[index] = color;
-  applyColors();
-}
-
-/* =====================================================
-   BLINK – FIXED 600ms
+   BLINK
 ===================================================== */
 let visible = true;
 setInterval(() => {
@@ -209,12 +214,8 @@ function updateTime() {
   const s = String(timeLeft % 60).padStart(2, "0");
   expiryText.textContent = `Expires in ${m}:${s}`;
 }
-
 setInterval(() => {
-  if (timeLeft > 0) {
-    timeLeft--;
-    updateTime();
-  }
+  if (timeLeft > 0) { timeLeft--; updateTime(); }
 }, 1000);
 
 /* =====================================================
@@ -229,29 +230,37 @@ expiryText.onclick = () => {
   expiryDuration = expiryDuration === 3600 ? 1800 : 3600;
   timeLeft = expiryDuration;
 
-  bgImageContainer.style.backgroundImage =
-    currentBgIndex === 1 ? `url(${BG2})` : `url(${BG1})`;
+  bgImg.src = currentBgIndex === 1 ? BG2 : BG1;
   currentBgIndex = currentBgIndex === 1 ? 2 : 1;
 
   updateTime();
 };
 
 /* =====================================================
+   ✅ Stabilize after link-open viewport changes
+===================================================== */
+function stabilize() {
+  updateImageBox();
+  requestAnimationFrame(updateImageBox);
+  setTimeout(updateImageBox, 50);
+  setTimeout(updateImageBox, 250);
+  setTimeout(updateImageBox, 600);
+}
+window.addEventListener("resize", stabilize);
+window.addEventListener("orientationchange", stabilize);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", stabilize);
+  window.visualViewport.addEventListener("scroll", stabilize);
+}
+
+/* =====================================================
    INIT
 ===================================================== */
-bgImageContainer.style.backgroundImage = `url(${BG1})`;
+bgImg.onload = () => { stabilize(); };
+bgImg.src = BG1;
+
 applyColors();
 updateTime();
-
-// ✅ do VH fix immediately too (helps first-open)
-stabilizeVH();
-
-// ✅ preload images and re-stabilize once loaded (first-open bug killer)
-[BG1, BG2].forEach(src => {
-  const img = new Image();
-  img.onload = stabilizeVH;
-  img.src = src;
-});
 </script>
 
 </body>
