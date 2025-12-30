@@ -2,86 +2,129 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>TicketUI – FULL Mobile Safe Version</title>
+<title>TicketUI – SVG Stable (All iPhones)</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, system-ui; }
-  .color-input{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, system-ui;
+    margin: 0;
+  }
+
+  /* Prevent iOS Safari text auto-resizing that can cause “drift” */
+  html, body {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Make the stage stable */
+  .stage {
+    width: 100%;
+    height: 100dvh;      /* modern mobile browsers */
+    height: 100vh;       /* fallback */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1797D0;
+    position: relative;
+    overflow: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+             env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* SVG scales like an image while keeping viewBox coordinates */
+  .ticket {
+    width: min(375px, 92vw);
+    height: auto;
+    max-height: 92dvh;
+    max-height: 92vh;
+    display: block;
+  }
+
+  /* hidden color inputs */
+  .hidden-input {
+    position: fixed;
+    left: -9999px;
+    top: -9999px;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
 </style>
 </head>
 
-<body class="w-full h-screen flex bg-[#1797D0]">
-<div class="flex-1 flex items-center justify-center relative overflow-hidden">
+<body>
+  <div class="stage">
+    <!-- Hidden inputs for mobile-safe color pickers -->
+    <input id="ringColorInput" class="hidden-input" type="color" />
+    <input id="bar0ColorInput" class="hidden-input" type="color" />
+    <input id="bar1ColorInput" class="hidden-input" type="color" />
+    <input id="bar2ColorInput" class="hidden-input" type="color" />
 
-  <!-- ✅ Measurable image (contain) -->
-  <img id="bgImg"
-       class="absolute inset-0 w-full h-full object-contain object-center"
-       alt=""
-       draggable="false" />
+    <!-- ✅ One coordinate system: viewBox 0..375 x 0..812 -->
+    <svg id="ticketSvg" class="ticket" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background image (contain-like behavior is automatic with preserveAspectRatio) -->
+      <image id="bgImg"
+        href=""
+        x="0" y="0" width="375" height="812"
+        preserveAspectRatio="xMidYMid meet" />
 
-  <!-- PHONE -->
-  <div id="phone" class="relative w-[375px] h-[812px] z-10">
+      <!-- QR Ring -->
+      <rect id="qrRing"
+        x="103" y="82" width="169" height="169"
+        rx="16" ry="16"
+        fill="transparent"
+        stroke="#FDC9D3"
+        stroke-width="13"
+        style="cursor:pointer" />
 
-    <!-- ✅ This box will be resized to EXACT rendered image box -->
-    <div id="imageBox" class="absolute" style="left:0; top:0; width:0; height:0;">
+      <!-- Color Bars group -->
+      <g id="barsWrap" style="cursor:pointer">
+        <rect id="bar0" x="48.5" y="674" width="92.6667" height="20" />
+        <rect id="bar1" x="141.1667" y="674" width="92.6667" height="20" />
+        <rect id="bar2" x="233.8334" y="674" width="92.6667" height="20" />
+      </g>
 
-      <!-- QR RING (now positioned by % via JS) -->
-      <div id="qrRing" class="absolute" style="border-radius:16px;border:13px solid; position:absolute;">
-        <input type="color" class="color-input" onchange="setRingColor(this.value)" />
-      </div>
-
-      <!-- COLOR BARS -->
-      <div id="barsWrap" class="absolute flex">
-        <div id="bar1" class="flex-1 relative">
-          <input type="color" class="color-input" onchange="setBarColor(0, this.value)" />
-        </div>
-        <div id="bar2" class="flex-1 relative">
-          <input type="color" class="color-input" onchange="setBarColor(1, this.value)" />
-        </div>
-        <div id="bar3" class="flex-1 relative">
-          <input type="color" class="color-input" onchange="setBarColor(2, this.value)" />
-        </div>
-      </div>
-
-      <!-- EXPIRY -->
-      <h3 id="expiryText"
-        class="absolute w-full text-center cursor-pointer select-none"
-        style="font-size:21px;font-weight:600;">
+      <!-- Expiry -->
+      <text id="expiryText"
+        x="187.5" y="727"
+        text-anchor="middle"
+        font-size="21"
+        font-weight="600"
+        fill="#000"
+        style="cursor:pointer; user-select:none">
         Expires in 60:00
-      </h3>
+      </text>
 
-      <!-- MIDDLE NUMBER -->
-      <h1 id="middleNumber"
-        class="absolute w-full text-center cursor-pointer select-none"
-        style="font-size:56px;font-weight:800;">
+      <!-- Middle Number -->
+      <text id="middleNumber"
+        x="187.5" y="355"  <!-- y is baseline, so adjust a bit from 309 -->
+        text-anchor="middle"
+        font-size="56"
+        font-weight="800"
+        fill="#000"
+        style="cursor:pointer; user-select:none">
         2
-      </h1>
-
-    </div>
+      </text>
+    </svg>
   </div>
-</div>
 
 <script>
-/* =====================================================
-   DESIGN REFERENCE (your manual-perfect layout)
-===================================================== */
-const DESIGN_W = 375;
-const DESIGN_H = 812;
-
-/* =====================================================
+/* =========================
    BACKGROUNDS
-===================================================== */
+========================= */
 const BG1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg1.jpg.jpg";
 const BG2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
 
-/* =====================================================
-   DEFAULT CONFIG
-===================================================== */
+/* =========================
+   DEFAULTS
+========================= */
 const DEFAULT_RING_COLOR = "#FDC9D3";
 const DEFAULT_BAR_COLORS = ["#3D871D", "#B49CDA", "#81CE1E"];
 
+/* =========================
+   STATE
+========================= */
 let ringColor = DEFAULT_RING_COLOR;
 let barColors = [...DEFAULT_BAR_COLORS];
 let middleValue = 2;
@@ -90,178 +133,123 @@ let expiryDuration = 3600;
 let timeLeft = expiryDuration;
 let currentBgIndex = 1;
 
-/* =====================================================
+/* =========================
    ELEMENTS
-===================================================== */
-const phone = document.getElementById("phone");
+========================= */
 const bgImg = document.getElementById("bgImg");
-const imageBox = document.getElementById("imageBox");
-
 const qrRing = document.getElementById("qrRing");
-const barsWrap = document.getElementById("barsWrap");
-const bars = [document.getElementById("bar1"), document.getElementById("bar2"), document.getElementById("bar3")];
-
+const bar0 = document.getElementById("bar0");
+const bar1 = document.getElementById("bar1");
+const bar2 = document.getElementById("bar2");
 const expiryText = document.getElementById("expiryText");
 const middleNumber = document.getElementById("middleNumber");
 
-/* =====================================================
-   ✅ Your manual pixel positions (ONLY set once here)
-===================================================== */
-const layout = {
-  qrRing:   { top: 82,  left: (DESIGN_W/2), w: 169, h: 169, centerX: true },
-  barsWrap: { top: 674, left: (DESIGN_W/2), w: 278, h: 20,  centerX: true },
-  expiry:   { top: 727 },
-  middle:   { top: 309 }
-};
+const ringColorInput = document.getElementById("ringColorInput");
+const bar0ColorInput = document.getElementById("bar0ColorInput");
+const bar1ColorInput = document.getElementById("bar1ColorInput");
+const bar2ColorInput = document.getElementById("bar2ColorInput");
 
-/* =====================================================
-   ✅ Find the actual rendered "contain" image box inside phone
-===================================================== */
-function updateImageBox() {
-  const pw = phone.clientWidth;
-  const ph = phone.clientHeight;
-
-  // image natural ratio
-  const natW = bgImg.naturalWidth || 1;
-  const natH = bgImg.naturalHeight || 1;
-  const imgRatio = natW / natH;
-  const phoneRatio = pw / ph;
-
-  let drawW, drawH, offsetX, offsetY;
-
-  // object-contain logic
-  if (imgRatio > phoneRatio) {
-    // limited by width
-    drawW = pw;
-    drawH = pw / imgRatio;
-    offsetX = 0;
-    offsetY = (ph - drawH) / 2;
-  } else {
-    // limited by height
-    drawH = ph;
-    drawW = ph * imgRatio;
-    offsetY = 0;
-    offsetX = (pw - drawW) / 2;
-  }
-
-  imageBox.style.left = offsetX + "px";
-  imageBox.style.top = offsetY + "px";
-  imageBox.style.width = drawW + "px";
-  imageBox.style.height = drawH + "px";
-
-  // now place overlays relative to imageBox size
-  placeOverlays(drawW, drawH);
-}
-
-/* =====================================================
-   ✅ Convert your design px into % and apply to imageBox
-===================================================== */
-function placeOverlays(drawW, drawH) {
-  // QR ring
-  const qrTop = (layout.qrRing.top / DESIGN_H) * drawH;
-  const qrW   = (layout.qrRing.w   / DESIGN_W) * drawW;
-  const qrH   = (layout.qrRing.h   / DESIGN_H) * drawH;
-
-  qrRing.style.top = qrTop + "px";
-  qrRing.style.width = qrW + "px";
-  qrRing.style.height = qrH + "px";
-
-  // centerX behavior like your left:50% translateX(-50%)
-  qrRing.style.left = (drawW / 2) + "px";
-  qrRing.style.transform = "translateX(-50%)";
-
-  // Bars wrap
-  const bTop = (layout.barsWrap.top / DESIGN_H) * drawH;
-  const bW   = (layout.barsWrap.w   / DESIGN_W) * drawW;
-  const bH   = (layout.barsWrap.h   / DESIGN_H) * drawH;
-
-  barsWrap.style.top = bTop + "px";
-  barsWrap.style.width = bW + "px";
-  barsWrap.style.height = bH + "px";
-  barsWrap.style.left = (drawW / 2) + "px";
-  barsWrap.style.transform = "translateX(-50%)";
-
-  // Expiry + Middle (full width)
-  expiryText.style.top = ((layout.expiry.top / DESIGN_H) * drawH) + "px";
-  middleNumber.style.top = ((layout.middle.top / DESIGN_H) * drawH) + "px";
-}
-
-/* =====================================================
-   COLORS
-===================================================== */
+/* =========================
+   APPLY COLORS
+========================= */
 function applyColors() {
-  qrRing.style.borderColor = ringColor;
-  bars.forEach((b, i) => b.style.background = barColors[i]);
+  qrRing.setAttribute("stroke", ringColor);
+  bar0.setAttribute("fill", barColors[0]);
+  bar1.setAttribute("fill", barColors[1]);
+  bar2.setAttribute("fill", barColors[2]);
 }
-function setRingColor(color){ ringColor = color; applyColors(); }
-function setBarColor(index, color){ barColors[index] = color; applyColors(); }
 
-/* =====================================================
-   BLINK
-===================================================== */
+/* =========================
+   COLOR PICKERS (mobile-safe)
+========================= */
+qrRing.addEventListener("click", () => {
+  ringColorInput.value = ringColor;
+  ringColorInput.click();
+});
+ringColorInput.addEventListener("input", (e) => {
+  ringColor = e.target.value;
+  applyColors();
+});
+
+bar0.addEventListener("click", () => {
+  bar0ColorInput.value = barColors[0];
+  bar0ColorInput.click();
+});
+bar0ColorInput.addEventListener("input", (e) => {
+  barColors[0] = e.target.value;
+  applyColors();
+});
+
+bar1.addEventListener("click", () => {
+  bar1ColorInput.value = barColors[1];
+  bar1ColorInput.click();
+});
+bar1ColorInput.addEventListener("input", (e) => {
+  barColors[1] = e.target.value;
+  applyColors();
+});
+
+bar2.addEventListener("click", () => {
+  bar2ColorInput.value = barColors[2];
+  bar2ColorInput.click();
+});
+bar2ColorInput.addEventListener("input", (e) => {
+  barColors[2] = e.target.value;
+  applyColors();
+});
+
+/* =========================
+   BLINK (600ms)
+========================= */
 let visible = true;
 setInterval(() => {
   visible = !visible;
   const o = visible ? "1" : "0";
-  bars.forEach(b => b.style.opacity = o);
+  bar0.style.opacity = o;
+  bar1.style.opacity = o;
+  bar2.style.opacity = o;
 }, 600);
 
-/* =====================================================
+/* =========================
    TIME
-===================================================== */
+========================= */
 function updateTime() {
   const m = Math.floor(timeLeft / 60);
   const s = String(timeLeft % 60).padStart(2, "0");
   expiryText.textContent = `Expires in ${m}:${s}`;
 }
+
 setInterval(() => {
-  if (timeLeft > 0) { timeLeft--; updateTime(); }
+  if (timeLeft > 0) {
+    timeLeft--;
+    updateTime();
+  }
 }, 1000);
 
-/* =====================================================
+/* =========================
    INTERACTIONS
-===================================================== */
-middleNumber.onclick = () => {
+========================= */
+middleNumber.addEventListener("click", () => {
   middleValue = (middleValue + 1) % 10;
-  middleNumber.textContent = middleValue;
-};
+  middleNumber.textContent = String(middleValue);
+});
 
-expiryText.onclick = () => {
-  expiryDuration = expiryDuration === 3600 ? 1800 : 3600;
+expiryText.addEventListener("click", () => {
+  expiryDuration = (expiryDuration === 3600) ? 1800 : 3600;
   timeLeft = expiryDuration;
 
-  bgImg.src = currentBgIndex === 1 ? BG2 : BG1;
+  bgImg.setAttribute("href", currentBgIndex === 1 ? BG2 : BG1);
   currentBgIndex = currentBgIndex === 1 ? 2 : 1;
 
   updateTime();
-};
+});
 
-/* =====================================================
-   ✅ Stabilize after link-open viewport changes
-===================================================== */
-function stabilize() {
-  updateImageBox();
-  requestAnimationFrame(updateImageBox);
-  setTimeout(updateImageBox, 50);
-  setTimeout(updateImageBox, 250);
-  setTimeout(updateImageBox, 600);
-}
-window.addEventListener("resize", stabilize);
-window.addEventListener("orientationchange", stabilize);
-if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", stabilize);
-  window.visualViewport.addEventListener("scroll", stabilize);
-}
-
-/* =====================================================
+/* =========================
    INIT
-===================================================== */
-bgImg.onload = () => { stabilize(); };
-bgImg.src = BG1;
-
+========================= */
+bgImg.setAttribute("href", BG1);
 applyColors();
 updateTime();
 </script>
-
 </body>
 </html>
