@@ -11,7 +11,6 @@
     font-family: -apple-system, BlinkMacSystemFont, system-ui;
   }
 
-  /* Invisible but REAL color input (mobile-safe) */
   .color-input {
     position: absolute;
     inset: 0;
@@ -25,14 +24,25 @@
 
 <body class="w-full h-screen flex bg-[#1797D0]">
 
-<div class="flex-1 flex items-center justify-center relative overflow-hidden">
+<!-- ✅ CHANGED: give the stage an id so we can measure it -->
+<div id="stage" class="flex-1 flex items-center justify-center relative overflow-hidden">
 
   <!-- BACKGROUND -->
   <div id="bgImageContainer"
        class="absolute inset-0 bg-no-repeat bg-center bg-contain"></div>
 
-  <!-- PHONE -->
-  <div class="relative w-[375px] h-[812px] z-10">
+  <!-- ✅ CHANGED: phone is now absolutely positioned + scaled by JS -->
+  <div id="phone"
+       class="z-10"
+       style="
+         position:absolute;
+         width:375px;
+         height:812px;
+         left:50%;
+         top:50%;
+         transform:translate(-50%, -50%) scale(1);
+         transform-origin:center;
+       ">
 
     <!-- QR RING -->
     <div id="qrRing"
@@ -96,14 +106,11 @@
 
 <script>
 /* =====================================================
-   DEFAULT CONFIG  ⭐ CHANGE COLORS HERE ⭐
+   YOUR ORIGINAL CONFIG
 ===================================================== */
 const DEFAULT_RING_COLOR = "#FDC9D3";
 const DEFAULT_BAR_COLORS = ["#3D871D", "#B49CDA", "#81CE1E"];
 
-/* =====================================================
-   STATE (initialized from defaults)
-===================================================== */
 let ringColor = DEFAULT_RING_COLOR;
 let barColors = [...DEFAULT_BAR_COLORS];
 let middleValue = 2;
@@ -112,9 +119,6 @@ let expiryDuration = 3600;
 let timeLeft = expiryDuration;
 let currentBgIndex = 1;
 
-/* =====================================================
-   ELEMENTS
-===================================================== */
 const qrRing = document.getElementById("qrRing");
 const bars = [
   document.getElementById("bar1"),
@@ -132,6 +136,32 @@ const BG1 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/b
 const BG2 = "https://raw.githubusercontent.com/Hastin7008/buspass1/main/assets/bg2.jpg.jpg";
 
 /* =====================================================
+   ✅ NEW: RESPONSIVE SCALE (Fix for Pro / non-Max)
+   Reference design size = your current values
+===================================================== */
+const DESIGN_W = 375;
+const DESIGN_H = 812;
+
+function fitPhoneToScreen() {
+  const stage = document.getElementById("stage");
+  const phone = document.getElementById("phone");
+
+  // small padding so it never touches edges
+  const pad = 16;
+
+  const availW = stage.clientWidth - pad * 2;
+  const availH = stage.clientHeight - pad * 2;
+
+  const scale = Math.min(availW / DESIGN_W, availH / DESIGN_H);
+
+  phone.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+// run on load + resize/orientation changes
+window.addEventListener("resize", fitPhoneToScreen);
+window.addEventListener("orientationchange", fitPhoneToScreen);
+
+/* =====================================================
    APPLY COLORS
 ===================================================== */
 function applyColors() {
@@ -139,9 +169,6 @@ function applyColors() {
   bars.forEach((b, i) => b.style.background = barColors[i]);
 }
 
-/* =====================================================
-   COLOR HANDLERS (mobile safe)
-===================================================== */
 function setRingColor(color) {
   ringColor = color;
   applyColors();
@@ -203,6 +230,9 @@ expiryText.onclick = () => {
 bgImageContainer.style.backgroundImage = `url(${BG1})`;
 applyColors();
 updateTime();
+
+// ✅ run scaling after initial layout
+fitPhoneToScreen();
 </script>
 
 </body>
